@@ -26,7 +26,7 @@ else
 end
 
 # ── ALLOWED ORIGINS for CORS ──────────────────────────────
-# Set CORS_ORIGIN env var in production (e.g. https://blackwavemiami.com)
+# Set CORS_ORIGIN env var in production (e.g. https://www.blackwavemt.com)
 # Defaults to '*' only for local dev
 CORS_ORIGIN = ENV['CORS_ORIGIN'] || '*'
 
