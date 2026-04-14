@@ -1,5 +1,13 @@
+# Lock provider to Ruby only — avoids Nixpacks scanning for Node/Python/etc.
+providers = ["ruby"]
+
+[variables]
+RUBY_VERSION     = "3.2.2"
+BUNDLE_WITHOUT   = "development:test"
+BUNDLE_DEPLOYMENT = "1"
+
 [phases.install]
-cmds = ["bundle install --without development test"]
+cmds = ["bundle install --jobs 4 --retry 3"]
 
 [start]
 cmd = "bundle exec ruby server.rb"
