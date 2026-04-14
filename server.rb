@@ -4,6 +4,9 @@ require 'json'
 require 'securerandom'
 require 'date'
 
+# ── APP ROOT — absolute path regardless of CWD ────────────
+APP_ROOT = File.expand_path(__dir__)
+
 # ── CONFIG ────────────────────────────────────────────────
 SQUARE_ACCESS_TOKEN = ENV['SQUARE_TOKEN']       || 'EAAAl9BK3APGEkUmkde-mPPH1NQBnQFslgkIl85n7b-MdAc1JXqh6_7HUQlsXVel'
 SQUARE_APP_ID       = ENV['SQUARE_APP_ID']      || 'sq0idp-uF_6ZCJ60TpW-fsgYb1EiQ'
@@ -14,13 +17,12 @@ ICAL_TOKEN          = ENV['ICAL_TOKEN']  || 'BlackWave2026'
 BUFFER_MINS         = 20
 
 # ── BOOKINGS FILE — validate path stays within app dir ────
-_bookings_raw = ENV['BOOKINGS_FILE'] || File.join(File.dirname(__FILE__), 'bookings.json')
-_app_root     = File.expand_path(File.dirname(__FILE__))
-BOOKINGS_FILE = if File.expand_path(_bookings_raw).start_with?(_app_root)
+_bookings_raw = ENV['BOOKINGS_FILE'] || File.join(APP_ROOT, 'bookings.json')
+BOOKINGS_FILE = if File.expand_path(_bookings_raw).start_with?(APP_ROOT)
   _bookings_raw
 else
   warn "[SECURITY] BOOKINGS_FILE path rejected — using default"
-  File.join(_app_root, 'bookings.json')
+  File.join(APP_ROOT, 'bookings.json')
 end
 
 # ── ALLOWED ORIGINS for CORS ──────────────────────────────
@@ -578,17 +580,16 @@ end
 port   = (ENV['PORT'] || 8080).to_i
 $stdout.sync = true   # flush immediately — Railway streams logs line by line
 server = WEBrick::HTTPServer.new(
-  Port:            port,
-  BindAddress:     '0.0.0.0',
-  DocumentRoot:    File.dirname(__FILE__),
-  Logger:          WEBrick::Log.new($stdout),
-  AccessLog:       [[$stdout, WEBrick::AccessLog::COMBINED_LOG_FORMAT]]
+  Port:        port,
+  BindAddress: '0.0.0.0',
+  Logger:      WEBrick::Log.new($stdout),
+  AccessLog:   [[$stdout, WEBrick::AccessLog::COMBINED_LOG_FORMAT]]
 )
 
 server.mount('/api/checkout',              CheckoutServlet)
 server.mount('/api/bookings/calendar.ics', ICalServlet)
 server.mount('/api',                       APIServlet)
-server.mount('/',                          SecureFileHandler, File.dirname(__FILE__))
+server.mount('/',                          SecureFileHandler, APP_ROOT)
 
 trap('INT')  { server.shutdown }
 trap('TERM') { server.shutdown }

@@ -1,0 +1,5 @@
+[phases.install]
+cmds = ["bundle install --without development test"]
+
+[start]
+cmd = "bundle exec ruby server.rb"
