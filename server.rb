@@ -73,21 +73,6 @@ def cors(res)
   res['Referrer-Policy']              = 'strict-origin-when-cross-origin'
 end
 
-def security_headers(res)
-  res['X-Content-Type-Options'] = 'nosniff'
-  res['X-Frame-Options']        = 'SAMEORIGIN'
-  res['Referrer-Policy']        = 'strict-origin-when-cross-origin'
-  res['Permissions-Policy']     = 'geolocation=(), microphone=(), camera=()'
-  res['Content-Security-Policy'] =
-    "default-src 'self'; " \
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://maps.googleapis.com https://maps.gstatic.com https://cdn.emailjs.com; " \
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " \
-    "font-src 'self' https://fonts.gstatic.com; " \
-    "img-src 'self' data: https: blob:; " \
-    "connect-src 'self' https://api.emailjs.com https://maps.googleapis.com; " \
-    "frame-src https://squareup.com https://*.squareup.com; " \
-    "object-src 'none'; base-uri 'self'"
-end
 
 def ok(res, body)
   res.status = 200
@@ -553,27 +538,71 @@ class ICalServlet < WEBrick::HTTPServlet::AbstractServlet
   end
 end
 
-# ── Middleware: security headers on all static responses ───
-class SecureFileHandler < WEBrick::HTTPServlet::FileHandler
-  def service(req, res)
-    super
-    res['X-Content-Type-Options'] = 'nosniff'
-    res['X-Frame-Options']        = 'SAMEORIGIN'
-    res['Referrer-Policy']        = 'strict-origin-when-cross-origin'
-    res['Permissions-Policy']     = 'geolocation=(), microphone=(), camera=()'
-    # Only send CSP on HTML pages (not images/JS/CSS where it's irrelevant)
-    if res['Content-Type']&.include?('text/html')
-      res['Content-Security-Policy'] =
-        "default-src 'self'; " \
+# ── SERVLET: Static file server (explicit — no WEBrick FileHandler) ──
+class StaticServlet < WEBrick::HTTPServlet::AbstractServlet
+  MIME = {
+    '.html'        => 'text/html; charset=utf-8',
+    '.css'         => 'text/css',
+    '.js'          => 'application/javascript',
+    '.json'        => 'application/json',
+    '.png'         => 'image/png',
+    '.jpg'         => 'image/jpeg',
+    '.jpeg'        => 'image/jpeg',
+    '.gif'         => 'image/gif',
+    '.svg'         => 'image/svg+xml',
+    '.ico'         => 'image/x-icon',
+    '.webmanifest' => 'application/manifest+json',
+    '.woff'        => 'font/woff',
+    '.woff2'       => 'font/woff2',
+    '.txt'         => 'text/plain',
+  }.freeze
+
+  CSP = "default-src 'self'; " \
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://maps.googleapis.com https://maps.gstatic.com https://cdn.emailjs.com; " \
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " \
         "font-src 'self' https://fonts.gstatic.com; " \
         "img-src 'self' data: https: blob:; " \
         "connect-src 'self' https://api.emailjs.com https://maps.googleapis.com; " \
         "frame-src https://squareup.com https://*.squareup.com; " \
-        "object-src 'none'; base-uri 'self'"
+        "object-src 'none'; base-uri 'self'".freeze
+
+  def do_GET(req, res)
+    # Normalise path
+    raw = req.path.dup
+    raw = '/index.html' if raw == '/' || raw.empty?
+    raw = '/admin.html' if raw == '/admin'
+
+    # Resolve to absolute path and prevent traversal
+    full = File.expand_path(File.join(APP_ROOT, raw))
+    unless full.start_with?(APP_ROOT + '/')
+      res.status = 403; res['Content-Type'] = 'text/plain'; res.body = 'Forbidden'; return
+    end
+
+    unless File.file?(full)
+      res.status = 404; res['Content-Type'] = 'text/html; charset=utf-8'
+      res.body = '<html><body style="font-family:sans-serif;padding:40px"><h2>404 — Not Found</h2></body></html>'
+      return
+    end
+
+    ext          = File.extname(full).downcase
+    content_type = MIME[ext] || 'application/octet-stream'
+    html         = content_type.include?('text/html')
+
+    res.status         = 200
+    res['Content-Type'] = content_type
+    res['Cache-Control'] = html ? 'no-cache, must-revalidate' : 'public, max-age=86400'
+    res.body           = File.binread(full)
+
+    if html
+      res['X-Content-Type-Options'] = 'nosniff'
+      res['X-Frame-Options']        = 'SAMEORIGIN'
+      res['Referrer-Policy']        = 'strict-origin-when-cross-origin'
+      res['Permissions-Policy']     = 'geolocation=(), microphone=(), camera=()'
+      res['Content-Security-Policy'] = CSP
     end
   end
+
+  alias do_HEAD do_GET
 end
 
 # ── SERVER ─────────────────────────────────────────────────
@@ -589,7 +618,7 @@ server = WEBrick::HTTPServer.new(
 server.mount('/api/checkout',              CheckoutServlet)
 server.mount('/api/bookings/calendar.ics', ICalServlet)
 server.mount('/api',                       APIServlet)
-server.mount('/',                          SecureFileHandler, APP_ROOT)
+server.mount('/',                          StaticServlet)
 
 trap('INT')  { server.shutdown }
 trap('TERM') { server.shutdown }
