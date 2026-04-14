@@ -15,8 +15,8 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="BlackWave Miami Transportation | Luxury Black SUV Service" />
   <meta property="og:description" content="Premium luxury black SUV service in Miami. Airport transfers, seaport transfers, hourly service & more. Book online 24/7." />
-  <meta property="og:image" content="https://blackwavemiami.com/img/PHOTO-2026-04-11-23-36-36.jpg" />
-  <meta property="og:url" content="https://blackwavemiami.com/" />
+  <meta property="og:image" content="https://blackwavemt.com/img/PHOTO-2026-04-11-23-36-36.jpg" />
+  <meta property="og:url" content="https://blackwavemt.com/" />
   <meta name="twitter:card" content="summary_large_image" />
 
   <!-- ═══════════════ FAVICON ═══════════════ -->
@@ -552,35 +552,88 @@
     .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
     .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
     .nav-mobile {
-      display: flex;          /* keep in flow so transition works on iOS */
-      visibility: hidden;     /* hide without removing — preserves transition */
+      display: flex;
+      visibility: hidden;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(10,10,10,0.98);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(5,5,7,0.98);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       z-index: 999;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      gap: 40px;
+      gap: 0;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.4s var(--ease-smooth), visibility 0.4s;
-      /* safe area so links never hide behind the iPhone notch */
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
+      transition: opacity 0.45s var(--ease-smooth), visibility 0.45s;
+      padding-top: calc(72px + env(safe-area-inset-top));
+      padding-bottom: calc(48px + env(safe-area-inset-bottom));
+      padding-left: 10vw;
+      padding-right: 10vw;
     }
-    .nav-mobile.open { visibility: visible; opacity: 1; pointer-events: all; transition: opacity 0.4s var(--ease-smooth), visibility 0s; }
+    .nav-mobile.open {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: all;
+      transition: opacity 0.45s var(--ease-smooth), visibility 0s;
+    }
     .nav-mobile a {
-      font-family: var(--font-serif);
-      font-size: 2rem;
-      font-weight: 400;
-      color: var(--text-secondary);
-      letter-spacing: 2px;
-      transition: color 0.3s;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      font-family: var(--font-sans);
+      font-size: 1.15rem;
+      font-weight: 300;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: rgba(184,200,216,0.55);
+      padding: 20px 0;
+      width: 100%;
+      border-bottom: 1px solid rgba(184,200,216,0.07);
+      transition: color 0.3s, padding-left 0.3s;
+      opacity: 0;
+      transform: translateX(-20px);
     }
-    .nav-mobile a:hover { color: var(--silver-hi); }
+    .nav-mobile a:last-of-type { border-bottom: none; }
+    .nav-mobile a:hover { color: var(--silver-hi); padding-left: 6px; }
+    .nav-mobile.open a {
+      animation: navItemIn 0.55s var(--ease-smooth) forwards;
+    }
+    .nav-mobile.open a:nth-of-type(1) { animation-delay: 0.06s; }
+    .nav-mobile.open a:nth-of-type(2) { animation-delay: 0.13s; }
+    .nav-mobile.open a:nth-of-type(3) { animation-delay: 0.20s; }
+    .nav-mobile.open a:nth-of-type(4) { animation-delay: 0.27s; }
+    .nav-mobile.open a:nth-of-type(5) { animation-delay: 0.34s; }
+    @keyframes navItemIn {
+      from { opacity: 0; transform: translateX(-24px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .mobile-nav-num {
+      font-family: var(--font-sans);
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: rgba(184,200,216,0.28);
+      min-width: 22px;
+      padding-bottom: 1px;
+    }
+    .nav-mobile-footer {
+      position: absolute;
+      bottom: calc(28px + env(safe-area-inset-bottom));
+      left: 10vw;
+      opacity: 0;
+    }
+    .nav-mobile.open .nav-mobile-footer {
+      animation: navItemIn 0.55s 0.48s var(--ease-smooth) forwards;
+    }
+    .nav-mobile-footer span {
+      font-family: var(--font-sans);
+      font-size: 8.5px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: rgba(184,200,216,0.2);
+    }
 
     /* ══════════════════════════════════════════════════════
        HERO
@@ -967,6 +1020,61 @@
       text-transform: uppercase;
       color: var(--silver);
       font-weight: 600;
+    }
+    /* ── Fleet carousel outer (mobile arrows + dots) ── */
+    .fleet-carousel-outer {
+      position: relative;
+    }
+    .fleet-arrow-btn {
+      display: none; /* visible only on mobile via media query below */
+    }
+    .fleet-dots-row {
+      display: none;
+    }
+    @media (max-width: 640px) {
+      .fleet-arrow-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: calc(50% - 22px); /* vertically centered on image (label is ~44px) */
+        transform: translateY(-50%);
+        z-index: 10;
+        width: 38px; height: 38px;
+        background: rgba(5,5,7,0.72);
+        border: 1px solid rgba(184,200,216,0.22);
+        border-radius: 50%;
+        color: var(--silver);
+        cursor: pointer;
+        transition: background 0.25s, border-color 0.25s, opacity 0.25s;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      .fleet-arrow-btn:active {
+        background: rgba(184,200,216,0.15);
+        border-color: var(--silver);
+      }
+      .fleet-arrow-btn.fleet-prev { left: 10px; }
+      .fleet-arrow-btn.fleet-next { right: 10px; }
+      .fleet-dots-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .fleet-dot-item {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: rgba(184,200,216,0.22);
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        transition: background 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth);
+      }
+      .fleet-dot-item.active {
+        background: var(--silver);
+        transform: scale(1.45);
+      }
     }
     .fleet-nav-btns {
       display: flex;
@@ -1979,6 +2087,8 @@
     @media (max-width: 640px) {
       #navbar { padding: 16px 20px; padding-top: calc(16px + env(safe-area-inset-top)); }
       #navbar.scrolled { padding: 12px 20px; padding-top: calc(12px + env(safe-area-inset-top)); }
+      .nav-logo-img { height: 68px; }
+      #navbar.scrolled .nav-logo-img { height: 52px; transition: height 0.35s var(--ease-smooth); }
       .section { padding: 72px 20px; }
       #booking { padding-top: 90px; }
       .services-grid { grid-template-columns: 1fr; }
@@ -2065,11 +2175,14 @@
 
 <!-- Mobile Menu -->
 <div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Mobile menu">
-  <a tabindex="0" data-scroll="services" class="mobile-nav-link">Services</a>
-  <a tabindex="0" data-scroll="fleet"    class="mobile-nav-link">Fleet</a>
-  <a tabindex="0" data-scroll="why"      class="mobile-nav-link">Why Us</a>
-  <a tabindex="0" data-scroll="booking"  class="mobile-nav-link">Book Now</a>
-  <a tabindex="0" data-scroll="footer"   class="mobile-nav-link">Contact</a>
+  <a tabindex="0" data-scroll="services" class="mobile-nav-link"><span class="mobile-nav-num">01</span>Services</a>
+  <a tabindex="0" data-scroll="fleet"    class="mobile-nav-link"><span class="mobile-nav-num">02</span>Fleet</a>
+  <a tabindex="0" data-scroll="why"      class="mobile-nav-link"><span class="mobile-nav-num">03</span>Why Us</a>
+  <a tabindex="0" data-scroll="booking"  class="mobile-nav-link"><span class="mobile-nav-num">04</span>Book Now</a>
+  <a tabindex="0" data-scroll="footer"   class="mobile-nav-link"><span class="mobile-nav-num">05</span>Contact</a>
+  <div class="nav-mobile-footer">
+    <span>BlackWave Miami &nbsp;·&nbsp; Luxury Transportation</span>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -2621,33 +2734,46 @@
       </p>
     </div>
 
-    <div class="fleet-slider-wrapper reveal">
-      <div class="fleet-slider" id="fleetSlider">
-        <!-- Card 1 — Exterior -->
-        <div class="fleet-card">
-          <div class="fleet-card-img">
-            <img src="img/PHOTO-2026-04-12-00-57-01.jpg" alt="2026 Jeep Grand Wagoneer exterior — Obsidian Black" loading="lazy" />
+    <div class="fleet-carousel-outer">
+      <div class="fleet-slider-wrapper reveal">
+        <div class="fleet-slider" id="fleetSlider">
+          <!-- Card 1 — Exterior -->
+          <div class="fleet-card">
+            <div class="fleet-card-img">
+              <img src="img/PHOTO-2026-04-12-00-57-01.jpg" alt="2026 Jeep Grand Wagoneer exterior — Obsidian Black" loading="lazy" />
+            </div>
+            <div class="fleet-card-label">Exterior · Obsidian Black</div>
           </div>
-          <div class="fleet-card-label">Exterior · Obsidian Black</div>
-        </div>
 
-        <!-- Card 2 — Interior -->
-        <div class="fleet-card">
-          <div class="fleet-card-img">
-            <img src="img/PHOTO-2026-04-13-17-07-51.jpg" alt="BlackWave interior — Captain Seats" loading="lazy" />
+          <!-- Card 2 — Interior -->
+          <div class="fleet-card">
+            <div class="fleet-card-img">
+              <img src="img/PHOTO-2026-04-13-17-07-51.jpg" alt="BlackWave interior — Captain Seats" loading="lazy" />
+            </div>
+            <div class="fleet-card-label">Interior · Captain Seats</div>
           </div>
-          <div class="fleet-card-label">Interior · Captain Seats</div>
-        </div>
 
-        <!-- Card 3 — On the road -->
-        <div class="fleet-card">
-          <div class="fleet-card-img">
-            <img src="img/PHOTO-2026-04-12-00-00-08.jpg" alt="BlackWave Grand Wagoneer on the road" loading="lazy" />
+          <!-- Card 3 — On the road -->
+          <div class="fleet-card">
+            <div class="fleet-card-img">
+              <img src="img/PHOTO-2026-04-12-00-00-08.jpg" alt="BlackWave Grand Wagoneer on the road" loading="lazy" />
+            </div>
+            <div class="fleet-card-label">On the Road · Miami</div>
           </div>
-          <div class="fleet-card-label">On the Road · Miami</div>
         </div>
       </div>
+
+      <!-- Mobile arrow controls (hidden on desktop via CSS) -->
+      <button class="fleet-arrow-btn fleet-prev" id="fleetPrev" aria-label="Previous vehicle">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="fleet-arrow-btn fleet-next" id="fleetNext" aria-label="Next vehicle">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2L10 7L5 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
+
+    <!-- Mobile dot pagination (hidden on desktop) -->
+    <div class="fleet-dots-row" id="fleetDotsRow"></div>
 
 
     <!-- Specs Sheet -->
@@ -3299,22 +3425,64 @@ document.addEventListener('DOMContentLoaded',()=>{
   const ctrEl=document.getElementById('counters');
   if(ctrEl)ctrObs.observe(ctrEl);
 
-  const fleetWrapper=document.querySelector('.fleet-slider-wrapper');
-  const fleetSlider=document.getElementById('fleetSlider');
-  const fleetCards=fleetSlider?[...fleetSlider.querySelectorAll('.fleet-card')]:[];
-  let fleetIdx=0;
-  const fVis=()=>innerWidth<640?1:innerWidth<1024?2:3;
-  function updateFleet(){
-    if(!fleetCards.length)return;
-    const max=Math.max(0,fleetCards.length-fVis());
-    fleetIdx=Math.min(Math.max(0,fleetIdx),max);
-    const card=fleetCards[fleetIdx];
-    const wrapRect=fleetWrapper.getBoundingClientRect();
-    const cardRect=card.getBoundingClientRect();
-    const scrollOffset=card.offsetLeft;
-    fleetSlider.style.transform=`translateX(-${scrollOffset}px)`;
+  const fleetSlider  = document.getElementById('fleetSlider');
+  const fleetCards   = fleetSlider ? [...fleetSlider.querySelectorAll('.fleet-card')] : [];
+  const fleetPrevBtn = document.getElementById('fleetPrev');
+  const fleetNextBtn = document.getElementById('fleetNext');
+  const fleetDotsRow = document.getElementById('fleetDotsRow');
+  let fleetIdx = 0;
+  const fVis   = () => innerWidth < 640 ? 1 : innerWidth < 1024 ? 2 : 3;
+
+  function fleetBuildDots(){
+    if(!fleetDotsRow) return;
+    fleetDotsRow.innerHTML = '';
+    const max = Math.max(0, fleetCards.length - fVis());
+    for(let i = 0; i <= max; i++){
+      const b = document.createElement('button');
+      b.className = 'fleet-dot-item' + (i === fleetIdx ? ' active' : '');
+      b.setAttribute('aria-label', 'Vehicle photo ' + (i+1));
+      b.addEventListener('click', () => { fleetIdx = i; updateFleet(); });
+      fleetDotsRow.appendChild(b);
+    }
   }
-  window.addEventListener('resize',()=>{fleetIdx=0;updateFleet();},{passive:true});
+
+  function updateFleet(){
+    if(!fleetCards.length) return;
+    const max = Math.max(0, fleetCards.length - fVis());
+    fleetIdx = Math.min(Math.max(0, fleetIdx), max);
+    fleetSlider.style.transform = `translateX(-${fleetCards[fleetIdx].offsetLeft}px)`;
+    // sync dots
+    fleetDotsRow && fleetDotsRow.querySelectorAll('.fleet-dot-item')
+      .forEach((d, i) => d.classList.toggle('active', i === fleetIdx));
+    // dim arrows at boundaries
+    if(fleetPrevBtn) fleetPrevBtn.style.opacity = fleetIdx === 0 ? '0.3' : '1';
+    if(fleetNextBtn) fleetNextBtn.style.opacity = fleetIdx >= max ? '0.3' : '1';
+  }
+
+  if(fleetPrevBtn) fleetPrevBtn.addEventListener('click', () => { fleetIdx--; updateFleet(); });
+  if(fleetNextBtn) fleetNextBtn.addEventListener('click', () => { fleetIdx++; updateFleet(); });
+
+  // Swipe support on fleet slider
+  let fDragStartX = null, fDragDelta = 0;
+  if(fleetSlider){
+    fleetSlider.addEventListener('pointerdown',  e => {
+      fDragStartX = e.clientX; fDragDelta = 0;
+      fleetSlider.setPointerCapture(e.pointerId);
+    }, {passive:true});
+    fleetSlider.addEventListener('pointermove',  e => {
+      if(fDragStartX === null) return;
+      fDragDelta = e.clientX - fDragStartX;
+    }, {passive:true});
+    fleetSlider.addEventListener('pointerup',    () => {
+      if(fDragStartX === null) return;
+      if(Math.abs(fDragDelta) > 40){ fleetIdx += fDragDelta < 0 ? 1 : -1; updateFleet(); }
+      fDragStartX = null; fDragDelta = 0;
+    }, {passive:true});
+    fleetSlider.addEventListener('pointercancel', () => { fDragStartX = null; }, {passive:true});
+  }
+
+  window.addEventListener('resize', () => { fleetIdx = 0; fleetBuildDots(); updateFleet(); }, {passive:true});
+  fleetBuildDots();
   updateFleet();
 
   // ── Testimonials slider ───────────────────────────────────
