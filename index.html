@@ -1059,21 +1059,41 @@
       .fleet-dots-row {
         display: flex;
         justify-content: center;
-        gap: 8px;
-        margin-top: 14px;
+        align-items: center;
+        gap: 5px;
+        margin-top: 16px;
       }
       .fleet-dot-item {
-        width: 6px; height: 6px;
-        border-radius: 50%;
-        background: rgba(184,200,216,0.22);
+        width: 28px;
+        height: 14px;
+        background: transparent;
         border: none;
         padding: 0;
         cursor: pointer;
-        transition: background 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth);
+        display: flex;
+        align-items: center;
+        transition: width 0.4s var(--ease-smooth);
+      }
+      .fleet-dot-item::before {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 2px;
+        border-radius: 1px;
+        background: rgba(184,200,216,0.22);
+        transition: background 0.4s var(--ease-smooth);
       }
       .fleet-dot-item.active {
-        background: var(--silver);
-        transform: scale(1.45);
+        width: 42px;
+      }
+      .fleet-dot-item.active::before {
+        background: rgba(184,200,216,0.85);
+      }
+      /* Buttery-smooth swipe feel on mobile */
+      .fleet-slider {
+        transition: transform 0.52s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        will-change: transform;
+        -webkit-overflow-scrolling: touch;
       }
     }
     .fleet-nav-btns {
@@ -2175,11 +2195,11 @@
 
 <!-- Mobile Menu -->
 <div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Mobile menu">
-  <a tabindex="0" data-scroll="services" class="mobile-nav-link"><span class="mobile-nav-num">01</span>Services</a>
-  <a tabindex="0" data-scroll="fleet"    class="mobile-nav-link"><span class="mobile-nav-num">02</span>Fleet</a>
-  <a tabindex="0" data-scroll="why"      class="mobile-nav-link"><span class="mobile-nav-num">03</span>Why Us</a>
-  <a tabindex="0" data-scroll="booking"  class="mobile-nav-link"><span class="mobile-nav-num">04</span>Book Now</a>
-  <a tabindex="0" data-scroll="footer"   class="mobile-nav-link"><span class="mobile-nav-num">05</span>Contact</a>
+  <a tabindex="0" data-scroll="services" class="mobile-nav-link">Services</a>
+  <a tabindex="0" data-scroll="fleet"    class="mobile-nav-link">Fleet</a>
+  <a tabindex="0" data-scroll="why"      class="mobile-nav-link">Why Us</a>
+  <a tabindex="0" data-scroll="booking"  class="mobile-nav-link">Book Now</a>
+  <a tabindex="0" data-scroll="footer"   class="mobile-nav-link">Contact</a>
   <div class="nav-mobile-footer">
     <span>BlackWave Miami &nbsp;·&nbsp; Luxury Transportation</span>
   </div>
