@@ -1,0 +1,27 @@
+# Logs
+server.log
+*.log
+/tmp/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Datos de reservas — Railway usa volumen persistente
+# bookings.json NO se sube a GitHub (datos privados de clientes)
+bookings.json
+
+# Gems instaladas localmente
+vendor/bundle
+.bundle/
+
+# Tunnel
+cf_blackwave.log
+
+# Editor / OS
+.env
+.env.local
+*.swp
+*.swo
+.idea/
+.vscode/

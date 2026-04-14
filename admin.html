@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>BlackWave — Admin</title>
+  <link rel="icon" type="image/x-icon" href="favicon/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="favicon/site.webmanifest" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#070709;--bg2:#0a0a0d;--s1:#111115;--s2:#18181e;--s3:#202028;
+    --silver:#B8C8D8;--chrome:#8A9BB0;--silver-hi:#D8E4F0;
+    --white:#F8FAFC;--border:rgba(184,200,216,0.10);--border2:rgba(184,200,216,0.18);
+    --pending:#F59E0B;--confirmed:#10B981;--completed:#6B7280;--cancelled:#EF4444;
+    --font:'Montserrat',sans-serif;--serif:'Playfair Display',serif;
+    --sidebar:240px;--radius:14px;
+  }
+  html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--font);font-size:14px;}
+
+  /* ── LOGIN ── */
+  #loginScreen{
+    display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;
+    background:radial-gradient(ellipse at 50% 30%,rgba(184,200,216,0.05) 0%,transparent 70%),var(--bg);
+  }
+  .login-card{
+    background:var(--s1);border:1px solid var(--border2);border-radius:var(--radius);
+    padding:48px 40px;width:100%;max-width:380px;text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,0.6);
+  }
+  .login-logo{font-family:var(--serif);font-size:1.8rem;letter-spacing:2px;color:var(--silver-hi);margin-bottom:6px;}
+  .login-sub{font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--chrome);margin-bottom:36px;}
+  .login-card input{
+    width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:10px;
+    padding:13px 16px;color:var(--white);font-family:var(--font);font-size:14px;
+    margin-bottom:16px;outline:none;transition:border-color 0.2s;
+  }
+  .login-card input:focus{border-color:var(--silver);}
+  .login-btn{
+    width:100%;padding:14px;border:none;border-radius:10px;cursor:pointer;
+    background:linear-gradient(135deg,#6A7F94,#B8C8D8,#ECF2F8,#B8C8D8,#6A7F94);
+    background-size:300% auto;font-family:var(--font);font-size:0.8rem;font-weight:700;
+    letter-spacing:2px;text-transform:uppercase;color:#0a0a0a;
+    transition:background-position 0.4s;
+  }
+  .login-btn:hover{background-position:right center;}
+  .login-err{color:#EF4444;font-size:0.78rem;margin-top:10px;min-height:18px;}
+
+  /* ── LAYOUT ── */
+  #app{display:none;height:100vh;height:100dvh;overflow:hidden;}
+  #app.visible{display:flex;}
+
+  /* ── SIDEBAR ── */
+  #sidebar{
+    width:var(--sidebar);flex-shrink:0;background:var(--bg2);
+    border-right:1px solid var(--border);display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  .sb-logo{
+    padding:20px 24px 16px;border-bottom:1px solid var(--border);
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+  }
+  .sb-logo img{flex-shrink:0;}
+  .sb-badge{font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--chrome);
+             display:block;font-family:var(--font);font-weight:500;}
+  .sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+  .sb-item{
+    display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;
+    cursor:pointer;color:var(--chrome);font-size:0.82rem;font-weight:500;letter-spacing:0.5px;
+    transition:background 0.2s,color 0.2s;border:none;background:none;width:100%;text-align:left;
+  }
+  .sb-item:hover{background:var(--s2);color:var(--silver);}
+  .sb-item.active{background:rgba(184,200,216,0.08);color:var(--silver-hi);
+                  border-left:2px solid var(--silver);}
+  .sb-item svg{flex-shrink:0;opacity:0.7;}
+  .sb-item.active svg{opacity:1;}
+  .sb-divider{height:1px;background:var(--border);margin:8px 0;}
+  .sb-logout{
+    padding:16px 12px;border-top:1px solid var(--border);
+  }
+  .sb-logout button{
+    width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border2);
+    background:none;color:var(--chrome);font-family:var(--font);font-size:0.78rem;
+    cursor:pointer;transition:all 0.2s;letter-spacing:1px;
+  }
+  .sb-logout button:hover{background:rgba(239,68,68,0.08);color:#EF4444;border-color:rgba(239,68,68,0.3);}
+
+  /* ── MAIN ── */
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 32px;border-bottom:1px solid var(--border);flex-shrink:0;
+    background:var(--bg);
+  }
+  .topbar-title{font-family:var(--serif);font-size:1.4rem;font-weight:400;color:var(--silver-hi);}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  .topbar-date{font-size:0.75rem;color:var(--chrome);letter-spacing:1px;}
+  .refresh-btn{
+    display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;
+    border:1px solid var(--border2);background:none;color:var(--chrome);
+    font-family:var(--font);font-size:0.74rem;cursor:pointer;transition:all 0.2s;
+  }
+  .refresh-btn:hover{background:var(--s2);color:var(--silver);}
+
+  .view-content{flex:1;overflow-y:auto;padding:28px 32px;}
+
+  /* ── VIEWS ── */
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ── STATS ── */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+  .stat-card{
+    background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);
+    padding:22px 24px;position:relative;overflow:hidden;
+  }
+  .stat-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--accent,var(--silver));opacity:0.5;
+  }
+  .stat-card.c-pending::before{background:var(--pending);}
+  .stat-card.c-confirmed::before{background:var(--confirmed);}
+  .stat-card.c-revenue::before{background:var(--silver);}
+  .stat-card.c-today::before{background:var(--silver-hi);}
+  .stat-label{font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;
+               color:var(--chrome);margin-bottom:10px;}
+  .stat-value{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--silver-hi);}
+  .stat-sub{font-size:0.72rem;color:var(--chrome);margin-top:4px;}
+  .stat-icon{position:absolute;top:20px;right:20px;opacity:0.12;}
+
+  /* ── CHARTS SECTION ── */
+  .charts-row{display:grid;grid-template-columns:1fr 300px;gap:20px;margin-bottom:28px;}
+  .panel{
+    background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);
+    padding:24px;
+  }
+  .panel-title{font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;
+               color:var(--chrome);margin-bottom:20px;}
+  .chart-wrap{position:relative;height:200px;}
+
+  /* ── TODAY LIST ── */
+  .today-list{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;}
+  .today-item{
+    display:flex;align-items:center;gap:14px;padding:12px 14px;
+    background:var(--s2);border-radius:10px;border:1px solid var(--border);
+  }
+  .today-time{font-size:0.75rem;font-weight:700;color:var(--silver);min-width:44px;text-align:center;}
+  .today-info{flex:1;min-width:0;}
+  .today-name{font-size:0.84rem;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .today-type{font-size:0.7rem;color:var(--chrome);}
+  .status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+  /* ── CALENDAR ── */
+  #calendarEl{
+    background:var(--s1);border-radius:var(--radius);border:1px solid var(--border);
+    padding:20px;min-height:600px;
+  }
+  /* FullCalendar dark overrides */
+  .fc{--fc-border-color:rgba(184,200,216,0.08);--fc-today-bg-color:rgba(184,200,216,0.04);
+       --fc-event-border-color:transparent;--fc-neutral-bg-color:var(--s2);
+       --fc-page-bg-color:transparent;--fc-list-event-hover-bg-color:var(--s2);}
+  .fc .fc-toolbar-title{font-family:var(--serif);font-size:1.2rem;color:var(--silver-hi);}
+  .fc .fc-button{background:var(--s2)!important;border-color:var(--border2)!important;
+                  color:var(--chrome)!important;font-family:var(--font)!important;
+                  font-size:0.75rem!important;letter-spacing:1px!important;
+                  border-radius:8px!important;padding:6px 12px!important;}
+  .fc .fc-button:hover{background:var(--s3)!important;color:var(--silver)!important;}
+  .fc .fc-button-active{background:rgba(184,200,216,0.12)!important;color:var(--silver-hi)!important;}
+  .fc .fc-col-header-cell-cushion,.fc .fc-daygrid-day-number,
+  .fc .fc-timegrid-slot-label{color:var(--chrome);font-size:0.75rem;}
+  .fc .fc-event{border-radius:6px!important;font-size:0.75rem!important;
+                 padding:2px 6px!important;cursor:pointer;}
+  .fc .fc-timegrid-col.fc-day-today,.fc .fc-daygrid-day.fc-day-today{
+    background:rgba(184,200,216,0.04)!important;}
+
+  /* ── BOOKINGS TABLE ── */
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .filter-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+  .ftab{
+    padding:7px 16px;border-radius:8px;border:1px solid var(--border2);
+    background:none;color:var(--chrome);font-family:var(--font);font-size:0.75rem;
+    font-weight:500;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;
+  }
+  .ftab.active{background:rgba(184,200,216,0.1);color:var(--silver-hi);border-color:var(--border2);}
+  .ftab:hover{background:var(--s2);}
+  .search-box{
+    margin-left:auto;display:flex;align-items:center;gap:8px;
+    background:var(--s1);border:1px solid var(--border2);border-radius:8px;padding:7px 14px;
+  }
+  .search-box input{
+    background:none;border:none;outline:none;color:var(--white);
+    font-family:var(--font);font-size:0.82rem;width:180px;
+  }
+  .search-box input::placeholder{color:var(--chrome);}
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--chrome);
+    text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);
+    font-weight:600;white-space:nowrap;
+  }
+  tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+  tbody tr:hover{background:rgba(184,200,216,0.03);}
+  tbody td{padding:13px 14px;font-size:0.82rem;color:var(--chrome);vertical-align:middle;}
+  tbody td.bold{color:var(--white);font-weight:500;}
+  .status-badge{
+    display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.68rem;
+    font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  }
+  .s-pending{background:rgba(245,158,11,0.12);color:#F59E0B;border:1px solid rgba(245,158,11,0.25);}
+  .s-confirmed{background:rgba(16,185,129,0.12);color:#10B981;border:1px solid rgba(16,185,129,0.25);}
+  .s-completed{background:rgba(107,114,128,0.12);color:#9CA3AF;border:1px solid rgba(107,114,128,0.2);}
+  .s-cancelled{background:rgba(239,68,68,0.1);color:#EF4444;border:1px solid rgba(239,68,68,0.2);}
+  .action-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .abtn{
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    padding:5px 10px;border-radius:7px;border:1px solid var(--border2);
+    background:none;color:var(--chrome);font-family:var(--font);font-size:0.7rem;
+    font-weight:600;cursor:pointer;transition:all 0.15s;text-decoration:none;white-space:nowrap;
+  }
+  .abtn:hover{background:var(--s2);color:var(--silver);}
+  .abtn.green{border-color:rgba(16,185,129,0.3);}
+  .abtn.green:hover{background:rgba(16,185,129,0.1);color:#10B981;border-color:rgba(16,185,129,0.5);}
+  .abtn.amber{border-color:rgba(245,158,11,0.3);}
+  .abtn.amber:hover{background:rgba(245,158,11,0.1);color:#F59E0B;border-color:rgba(245,158,11,0.5);}
+  .abtn.red{border-color:rgba(239,68,68,0.3);}
+  .abtn.red:hover{background:rgba(239,68,68,0.1);color:#EF4444;border-color:rgba(239,68,68,0.5);}
+  .abtn.whatsapp{border-color:rgba(37,211,102,0.3);}
+  .abtn.whatsapp:hover{background:rgba(37,211,102,0.1);color:#25D166;border-color:rgba(37,211,102,0.5);}
+  .empty-state{text-align:center;padding:60px 20px;color:var(--chrome);}
+  .empty-state p{font-size:0.8rem;letter-spacing:1px;margin-top:8px;}
+
+  /* ── REVENUE ── */
+  .rev-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+  .rev-chart-wrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:28px;}
+  .rev-chart-container{position:relative;height:320px;}
+  .charts-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;}
+  .charts-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:20px;}
+  .chart-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:24px;overflow:hidden;}
+  .chart-card-title{font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--chrome);margin-bottom:18px;}
+  .chart-card-container{position:relative;}
+  .trend-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .trend-val{font-family:var(--serif);font-size:1.5rem;color:var(--silver-hi);}
+  .trend-badge{font-size:0.68rem;padding:2px 8px;border-radius:20px;font-weight:700;}
+  .trend-up{background:rgba(16,185,129,0.12);color:#10B981;}
+  .trend-dn{background:rgba(239,68,68,0.1);color:#EF4444;}
+  .trend-neu{background:rgba(184,200,216,0.1);color:var(--chrome);}
+  .donut-legend{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+  .donut-leg-item{display:flex;align-items:center;gap:8px;font-size:0.76rem;}
+  .donut-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  @media(max-width:900px){.charts-2col,.charts-3col{grid-template-columns:1fr;}}
+
+  /* ── MODAL ── */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
+    z-index:1000;align-items:center;justify-content:center;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--s1);border:1px solid var(--border2);border-radius:var(--radius);
+    width:100%;max-width:560px;max-height:90vh;overflow-y:auto;
+    box-shadow:0 24px 60px rgba(0,0,0,0.6);
+  }
+  .modal-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:24px 28px;border-bottom:1px solid var(--border);
+  }
+  .modal-title{font-family:var(--serif);font-size:1.1rem;color:var(--silver-hi);}
+  .modal-close{
+    background:none;border:none;color:var(--chrome);cursor:pointer;
+    padding:4px;border-radius:6px;transition:color 0.2s;
+  }
+  .modal-close:hover{color:var(--white);}
+  .modal-body{padding:24px 28px;}
+  .modal-footer{
+    display:flex;gap:10px;padding:16px 28px;border-top:1px solid var(--border);
+    flex-wrap:wrap;justify-content:flex-end;
+  }
+  .info-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 20px;margin-bottom:20px;}
+  .info-label{font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--chrome);
+               align-self:center;}
+  .info-value{font-size:0.86rem;color:var(--white);font-weight:500;}
+  .modal-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+  /* ── RESCHEDULE MODAL ── */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+  .form-group label{display:block;font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;
+                     color:var(--chrome);margin-bottom:6px;}
+  .form-group input,.form-group select{
+    width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:8px;
+    padding:10px 14px;color:var(--white);font-family:var(--font);font-size:0.84rem;outline:none;
+    transition:border-color 0.2s;
+  }
+  .form-group input:focus,.form-group select:focus{border-color:var(--silver);}
+  .btn-primary{
+    padding:11px 22px;border-radius:10px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#8A9BB0,#D8E4F0,#8A9BB0);
+    background-size:200% auto;font-family:var(--font);font-size:0.78rem;font-weight:700;
+    letter-spacing:1.5px;text-transform:uppercase;color:#0a0a0a;
+    transition:background-position 0.3s;
+  }
+  .btn-primary:hover{background-position:right center;}
+  .btn-ghost{
+    padding:11px 22px;border-radius:10px;border:1px solid var(--border2);
+    background:none;color:var(--chrome);font-family:var(--font);font-size:0.78rem;
+    cursor:pointer;transition:all 0.2s;
+  }
+  .btn-ghost:hover{background:var(--s2);color:var(--silver);}
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar{width:4px;height:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(184,200,216,0.15);border-radius:2px;}
+
+  /* ── LOADING ── */
+  .loading{display:flex;align-items:center;justify-content:center;gap:8px;
+            padding:40px;color:var(--chrome);font-size:0.8rem;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .spinner{width:16px;height:16px;border:2px solid var(--border2);
+            border-top-color:var(--silver);border-radius:50%;
+            animation:spin 0.8s linear infinite;}
+
+  /* ── MOBILE HAMBURGER ── */
+  #mob-header{
+    display:none;
+    align-items:center;justify-content:space-between;
+    padding:14px 20px;padding-top:calc(14px + env(safe-area-inset-top));
+    background:var(--bg2);border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:200;flex-shrink:0;
+  }
+  #mob-logo{font-family:var(--serif);font-size:1.1rem;color:var(--silver-hi);letter-spacing:1px;}
+  #mob-burger{
+    background:none;border:none;color:var(--chrome);cursor:pointer;
+    padding:6px;border-radius:8px;display:flex;flex-direction:column;gap:4px;
+  }
+  #mob-burger span{display:block;width:20px;height:1.5px;background:currentColor;
+                    transition:transform 0.25s,opacity 0.25s;}
+  #mob-burger.open span:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+  #mob-burger.open span:nth-child(2){opacity:0;}
+  #mob-burger.open span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
+
+  /* Drawer overlay */
+  #mob-drawer{
+    display:none;position:fixed;inset:0;z-index:300;
+  }
+  #mob-drawer.open{display:block;}
+  #mob-drawer-bg{position:absolute;inset:0;background:rgba(0,0,0,0.6);}
+  #mob-drawer-panel{
+    position:absolute;left:0;top:0;bottom:0;width:260px;
+    background:var(--bg2);border-right:1px solid var(--border);
+    display:flex;flex-direction:column;
+    padding-top:env(safe-area-inset-top);
+    transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  #mob-drawer.open #mob-drawer-panel{transform:translateX(0);}
+  .mob-drawer-logo{
+    padding:20px 24px 16px;border-bottom:1px solid var(--border);
+    font-family:var(--serif);font-size:1.3rem;color:var(--silver-hi);letter-spacing:1px;
+  }
+  .mob-drawer-nav{flex:1;padding:12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+  .mob-drawer-item{
+    display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;
+    cursor:pointer;color:var(--chrome);font-size:0.84rem;font-weight:500;
+    border:none;background:none;width:100%;text-align:left;transition:background 0.15s,color 0.15s;
+  }
+  .mob-drawer-item:hover,.mob-drawer-item.active{
+    background:rgba(184,200,216,0.08);color:var(--silver-hi);
+  }
+  .mob-drawer-logout{
+    padding:16px;border-top:1px solid var(--border);
+    padding-bottom:calc(16px + env(safe-area-inset-bottom));
+  }
+
+  /* ── RESPONSIVE — TABLET ── */
+  @media(max-width:900px){
+    #sidebar{width:60px;}
+    .sb-logo span,.sb-item span,.sb-badge,.sb-logout button span{display:none;}
+    .sb-item{justify-content:center;padding:12px;}
+    .stats-grid,.rev-stats{grid-template-columns:repeat(2,1fr);}
+    .charts-row{grid-template-columns:1fr;}
+    .view-content{padding:20px 16px;}
+    .topbar{padding:16px 20px;}
+  }
+
+  /* ── RESPONSIVE — PHONE ── */
+  @media(max-width:600px){
+    #sidebar{display:none;}
+    #mob-header{display:flex;}
+    #app.visible{flex-direction:column;}
+    #main{flex:1;overflow:hidden;}
+    .stats-grid,.rev-stats{grid-template-columns:1fr 1fr;}
+    .charts-row{grid-template-columns:1fr;}
+    .view-content{padding:16px 14px;padding-bottom:calc(16px + env(safe-area-inset-bottom));}
+    .topbar{display:none;}
+    table{font-size:0.75rem;}
+    .action-group{gap:3px;}
+    .abtn span{display:none;}
+    .filter-bar{flex-direction:column;align-items:stretch;}
+    .search-box{margin-left:0;width:100%;}
+    .search-box input{width:100%;}
+    .charts-2col,.charts-3col{grid-template-columns:1fr;}
+    .modal{border-radius:var(--radius) var(--radius) 0 0;position:fixed;bottom:0;left:0;right:0;
+           max-width:100%;max-height:92vh;margin:0;}
+    .modal-overlay{align-items:flex-end;}
+  }
+  </style>
+</head>
+<body>
+
+<!-- ── MOBILE DRAWER ──────────────────────────────────────── -->
+<div id="mob-drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+  <div id="mob-drawer-bg"></div>
+  <div id="mob-drawer-panel">
+    <div class="mob-drawer-logo">BlackWave</div>
+    <nav class="mob-drawer-nav">
+      <button class="mob-drawer-item active" data-view="overview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </button>
+      <button class="mob-drawer-item" data-view="calendar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </button>
+      <button class="mob-drawer-item" data-view="bookings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Bookings
+      </button>
+      <button class="mob-drawer-item" data-view="revenue">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Revenue
+      </button>
+      <button class="mob-drawer-item" data-view="settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings & Sync
+      </button>
+    </nav>
+    <div class="mob-drawer-logout">
+      <button class="mob-drawer-item" onclick="logout();closeMobDrawer();" style="color:#EF4444;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOGIN ─────────────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">BlackWave</div>
+    <span class="login-sub">Admin Panel</span>
+    <input type="password" id="pwdInput" placeholder="Admin password" autocomplete="current-password"/>
+    <button class="login-btn" id="loginBtn">Access Dashboard</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ── APP ───────────────────────────────────────────────── -->
+<div id="app">
+
+  <!-- Mobile header (phones only) -->
+  <div id="mob-header">
+    <span id="mob-logo">BlackWave</span>
+    <button id="mob-burger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sb-logo">
+      <img src="img/Logo.png" alt="BlackWave" style="height:64px;width:auto;object-fit:contain;filter:brightness(1.05);">
+      <span class="sb-badge" style="display:block;margin-top:4px;text-align:center;">Admin</span>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item active" data-view="overview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Overview</span>
+      </button>
+      <button class="sb-item" data-view="calendar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Calendar</span>
+      </button>
+      <button class="sb-item" data-view="bookings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Bookings</span>
+      </button>
+      <button class="sb-item" data-view="revenue">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span>Revenue</span>
+      </button>
+      <div class="sb-divider"></div>
+      <button class="sb-item" data-view="settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+    <div class="sb-logout">
+      <button onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main id="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Overview</div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbarDate"></span>
+        <button class="refresh-btn" onclick="refreshAll()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="view-content">
+
+      <!-- ── OVERVIEW ── -->
+      <div class="view active" id="view-overview">
+        <div class="stats-grid" id="statsGrid">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+        <div class="charts-row">
+          <div class="panel">
+            <div class="panel-title">Revenue — Last 6 Months</div>
+            <div class="chart-wrap"><canvas id="miniRevenueChart"></canvas></div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Today's Schedule</div>
+            <div class="today-list" id="todayList"><div class="loading"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CALENDAR ── -->
+      <div class="view" id="view-calendar">
+        <div id="calendarEl"></div>
+      </div>
+
+      <!-- ── BOOKINGS ── -->
+      <div class="view" id="view-bookings">
+        <div class="filter-bar">
+          <div class="filter-tabs" id="filterTabs">
+            <button class="ftab active" data-status="all">All</button>
+            <button class="ftab" data-status="pending">Pending</button>
+            <button class="ftab" data-status="confirmed">Confirmed</button>
+            <button class="ftab" data-status="completed">Completed</button>
+            <button class="ftab" data-status="cancelled">Cancelled</button>
+          </div>
+          <div class="search-box">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Search name, ID…"/>
+          </div>
+        </div>
+        <div id="bookingsTableWrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- ── REVENUE ── -->
+      <div class="view" id="view-revenue">
+
+        <!-- KPI row -->
+        <div class="rev-stats" id="revStats">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+
+        <!-- Main bar chart -->
+        <div class="rev-chart-wrap">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+            <div class="panel-title" style="margin-bottom:0;">Monthly Revenue vs. Deposits Collected</div>
+            <div id="revTrend"></div>
+          </div>
+          <div class="rev-chart-container"><canvas id="revChart"></canvas></div>
+        </div>
+
+        <!-- Row 2: line trend + donut status -->
+        <div class="charts-2col">
+          <div class="chart-card">
+            <div class="chart-card-title">Revenue Trend (cumulative)</div>
+            <div class="chart-card-container" style="height:220px;"><canvas id="lineChart"></canvas></div>
+          </div>
+          <div class="chart-card" style="display:flex;flex-direction:column;">
+            <div class="chart-card-title">Bookings by Status</div>
+            <div style="display:flex;align-items:center;gap:24px;flex:1;min-height:0;">
+              <div style="position:relative;width:160px;height:160px;flex-shrink:0;overflow:hidden;">
+                <canvas id="donutChart" width="160" height="160"></canvas>
+              </div>
+              <div class="donut-legend" id="donutLegend" style="flex:1;min-width:0;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: bookings/month + revenue by type -->
+        <div class="charts-2col">
+          <div class="chart-card">
+            <div class="chart-card-title">Bookings per Month</div>
+            <div class="chart-card-container" style="height:200px;"><canvas id="bookingsBarChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">Revenue by Service Type</div>
+            <div class="chart-card-container" style="height:200px;"><canvas id="typeChart"></canvas></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── SETTINGS & SYNC ── -->
+      <div class="view" id="view-settings">
+
+        <!-- iCal Sync Card -->
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-title" style="margin-bottom:16px;">📅 Calendar Sync — iPhone / iPad / Mac</div>
+          <p style="font-size:0.82rem;color:var(--chrome);line-height:1.7;margin-bottom:20px;">
+            Subscribe to this URL in your iPhone Calendar app to automatically see all bookings.
+            The calendar refreshes every 15 minutes.<br>
+            <strong style="color:var(--silver);">iOS:</strong> Settings → Calendar → Accounts → Add Account → Other → Add Subscribed Calendar.
+          </p>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);
+                        border-radius:10px;padding:12px 16px;font-family:monospace;font-size:0.8rem;
+                        color:var(--silver-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                 id="icalUrlDisplay">Loading…</div>
+            <button onclick="copyIcalUrl()" style="padding:11px 18px;border-radius:10px;border:1px solid var(--border2);
+                    background:var(--s2);color:var(--silver);font-family:var(--font);font-size:0.78rem;
+                    cursor:pointer;white-space:nowrap;transition:all 0.2s;" id="copyIcalBtn">
+              Copy URL
+            </button>
+          </div>
+          <p style="font-size:0.72rem;color:var(--chrome);margin-top:10px;">
+            Token: <code style="color:var(--silver);">BlackWave2026</code> — keep this URL private.
+          </p>
+        </div>
+
+        <!-- ENV Variables guide -->
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-title" style="margin-bottom:16px;">⚙️ Production Environment Variables (Railway)</div>
+          <p style="font-size:0.82rem;color:var(--chrome);line-height:1.7;margin-bottom:16px;">
+            Set these in your Railway project → Variables:
+          </p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;">
+              <div style="font-family:monospace;font-size:0.8rem;color:var(--silver-hi);margin-bottom:4px;">SQUARE_TOKEN</div>
+              <div style="font-size:0.76rem;color:var(--chrome);">Your Square production access token (from developer.squareup.com)</div>
+            </div>
+            <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;">
+              <div style="font-family:monospace;font-size:0.8rem;color:var(--silver-hi);margin-bottom:4px;">ADMIN_PASS</div>
+              <div style="font-size:0.76rem;color:var(--chrome);">Admin panel password (change from default)</div>
+            </div>
+            <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;">
+              <div style="font-family:monospace;font-size:0.8rem;color:var(--silver-hi);margin-bottom:4px;">ICAL_TOKEN</div>
+              <div style="font-size:0.76rem;color:var(--chrome);">Secret token for the iCal feed URL</div>
+            </div>
+            <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;">
+              <div style="font-family:monospace;font-size:0.8rem;color:var(--silver-hi);margin-bottom:4px;">BOOKINGS_FILE</div>
+              <div style="font-size:0.76rem;color:var(--chrome);">Path for bookings JSON — Railway volume path e.g. <code>/data/bookings.json</code></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Server status -->
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:16px;">🔌 Server Status</div>
+          <div id="serverStatusWrap" style="font-size:0.84rem;color:var(--chrome);">Checking…</div>
+        </div>
+
+      </div><!-- end view-settings -->
+
+    </div><!-- end view-content -->
+  </main>
+</div><!-- end app -->
+
+<!-- ── BOOKING DETAIL MODAL ── -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detailTitle">Booking Detail</div>
+      <button class="modal-close" onclick="closeDetail()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-footer" id="detailFooter"></div>
+  </div>
+</div>
+
+<!-- ── RESCHEDULE MODAL ── -->
+<div class="modal-overlay" id="rescheduleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Reschedule Booking</div>
+      <button class="modal-close" onclick="closeReschedule()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>New Date</label>
+          <input type="date" id="rsDate"/>
+        </div>
+        <div class="form-group">
+          <label>New Time (24h)</label>
+          <input type="time" id="rsTime"/>
+        </div>
+      </div>
+      <p style="font-size:0.74rem;color:var(--chrome);">The availability buffer will be automatically recalculated.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeReschedule()">Cancel</button>
+      <button class="btn-primary" onclick="confirmReschedule()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── AUTH ──────────────────────────────────────────────────
+let TOKEN = sessionStorage.getItem('bw_admin_token') || '';
+let allBookings = [];
+let currentFilter = 'all';
+let currentSearch = '';
+let calendarInstance = null;
+let miniChart = null;
+let revChartInstance = null;
+let activeRescheduleId = null;
+
+const TYPE_LABELS = {
+  p2p:'Point-to-Point', hourly:'Hourly Service', airport:'Airport Transfer',
+  seaport:'Seaport Transfer', fisher:'Fisher Island', roundtrip:'Round Trip'
+};
+const STATUS_COLORS = {
+  pending:'#F59E0B', confirmed:'#10B981', completed:'#6B7280', cancelled:'#EF4444'
+};
+
+// ── INIT ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  if(TOKEN) initApp();
+
+  document.getElementById('loginBtn').onclick = doLogin;
+  document.getElementById('pwdInput').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+  // Sidebar desktop
+  document.querySelectorAll('.sb-item').forEach(btn => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+  });
+
+  // Mobile hamburger + drawer
+  const burger = document.getElementById('mob-burger');
+  const drawer = document.getElementById('mob-drawer');
+  burger?.addEventListener('click', () => {
+    const open = burger.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+    drawer.classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  document.getElementById('mob-drawer-bg')?.addEventListener('click', closeMobDrawer);
+  document.querySelectorAll('.mob-drawer-item[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => { switchView(btn.dataset.view); closeMobDrawer(); });
+  });
+
+  document.getElementById('filterTabs').addEventListener('click', e => {
+    const t = e.target.closest('.ftab');
+    if(!t) return;
+    document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    currentFilter = t.dataset.status;
+    renderBookingsTable();
+  });
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    currentSearch = e.target.value.toLowerCase();
+    renderBookingsTable();
+  });
+
+  document.getElementById('detailModal').addEventListener('click', e => {
+    if(e.target === document.getElementById('detailModal')) closeDetail();
+  });
+  document.getElementById('rescheduleModal').addEventListener('click', e => {
+    if(e.target === document.getElementById('rescheduleModal')) closeReschedule();
+  });
+});
+
+function closeMobDrawer(){
+  const burger = document.getElementById('mob-burger');
+  const drawer = document.getElementById('mob-drawer');
+  burger?.classList.remove('open');
+  burger?.setAttribute('aria-expanded','false');
+  drawer?.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function doLogin(){
+  const pwd = document.getElementById('pwdInput').value;
+  const errEl = document.getElementById('loginErr');
+  const btn  = document.getElementById('loginBtn');
+  errEl.textContent = '';
+  errEl.style.display = 'none';
+
+  if(!pwd.trim()){
+    showLoginErr('Enter your password.');
+    return;
+  }
+
+  // Must be served from http/https — file:// can't reach the server
+  if(location.protocol === 'file:'){
+    showLoginErr('Open this page via http://localhost:8080/admin.html — not as a local file.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Authenticating…';
+
+  try{
+    const r = await fetch('/api/admin/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:pwd})
+    });
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error || 'Incorrect password.');
+    TOKEN = d.token;
+    sessionStorage.setItem('bw_admin_token', TOKEN);
+    initApp();
+  }catch(e){
+    const msg = e.message.includes('fetch')
+      ? 'Cannot reach server. Make sure it is running at localhost:8080.'
+      : e.message;
+    showLoginErr(msg);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Access Dashboard';
+  }
+}
+
+function showLoginErr(msg){
+  const el = document.getElementById('loginErr');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.padding = '10px 14px';
+  el.style.borderRadius = '8px';
+  el.style.background = 'rgba(239,68,68,0.1)';
+  el.style.border = '1px solid rgba(239,68,68,0.3)';
+  el.style.fontSize = '0.82rem';
+  el.style.lineHeight = '1.5';
+}
+
+function logout(){
+  TOKEN = '';
+  sessionStorage.removeItem('bw_admin_token');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginScreen').style.display='flex';
+}
+
+function initApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  refreshAll();
+}
+
+async function refreshAll(){
+  await loadBookings();
+  renderStats();
+  renderTodayList();
+  renderMiniChart();
+  renderBookingsTable();
+  if(calendarInstance) calendarInstance.refetchEvents();
+  renderRevStats();
+  renderRevChart();
+  renderLineChart();
+  renderDonut();
+  renderBookingsBar();
+  renderTypeChart();
+}
+
+// ── DATA ──────────────────────────────────────────────────
+async function api(method, path, body){
+  const opts = {method, headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'}};
+  if(body) opts.body = JSON.stringify(body);
+  const r = await fetch(path, opts);
+  const d = await r.json();
+  if(!r.ok) throw new Error(d.error||'API error');
+  return d;
+}
+
+async function loadBookings(){
+  try{ allBookings = await api('GET','/api/bookings'); }
+  catch(e){ console.error(e); }
+}
+
+// ── VIEW SWITCHING ────────────────────────────────────────
+function switchView(name){
+  const titles = {overview:'Overview',calendar:'Calendar',bookings:'Bookings',revenue:'Revenue',settings:'Settings & Sync'};
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.sb-item, .mob-drawer-item').forEach(b=>{b.classList.toggle('active',b.dataset.view===name);});
+  document.getElementById(`view-${name}`)?.classList.add('active');
+  document.getElementById('topbarTitle').textContent = titles[name]||name;
+  if(name==='calendar') initCalendar();
+  if(name==='revenue'){ renderRevStats(); renderRevChart(); renderLineChart(); renderDonut(); renderBookingsBar(); renderTypeChart(); }
+  if(name==='settings') initSettings();
+}
+
+// ── SETTINGS & iCal SYNC ──────────────────────────────────
+function initSettings(){
+  const base = `${location.protocol}//${location.host}`;
+  const icalUrl = `${base}/api/bookings/calendar.ics?token=BlackWave2026`;
+  const display = document.getElementById('icalUrlDisplay');
+  if(display) display.textContent = icalUrl;
+
+  // Server status check
+  fetch('/api/health').then(r=>r.json()).then(d=>{
+    const el = document.getElementById('serverStatusWrap');
+    if(el) el.innerHTML = `<span style="color:#10B981;">✓ Server online</span> &nbsp;·&nbsp; ${new Date(d.time).toLocaleString()}`;
+  }).catch(()=>{
+    const el = document.getElementById('serverStatusWrap');
+    if(el) el.innerHTML = `<span style="color:#EF4444;">✗ Server unreachable</span>`;
+  });
+}
+
+function copyIcalUrl(){
+  const base = `${location.protocol}//${location.host}`;
+  const url = `${base}/api/bookings/calendar.ics?token=BlackWave2026`;
+  navigator.clipboard?.writeText(url).then(()=>{
+    const btn = document.getElementById('copyIcalBtn');
+    if(btn){ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy URL',2000); }
+  }).catch(()=> alert(url));
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────
+function renderStats(){
+  const today = new Date().toISOString().split('T')[0];
+  const active = allBookings.filter(b=>b.status!=='cancelled');
+  const stats = [
+    { label:'Today\'s Trips', value: allBookings.filter(b=>b.date===today&&b.status!=='cancelled').length,
+      sub:'scheduled trips', cls:'c-today',
+      icon:`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>`
+    },
+    { label:'Pending', value: allBookings.filter(b=>b.status==='pending').length,
+      sub:'awaiting confirmation', cls:'c-pending',
+      icon:`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
+    },
+    { label:'Confirmed', value: allBookings.filter(b=>b.status==='confirmed').length,
+      sub:'ready to go', cls:'c-confirmed',
+      icon:`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
+    },
+    { label:'Total Revenue', value: '$'+active.reduce((s,b)=>s+parseFloat(b.total||0),0).toFixed(0),
+      sub:'$'+active.reduce((s,b)=>s+parseFloat(b.deposit||0),0).toFixed(0)+' collected (deposits)', cls:'c-revenue',
+      icon:`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`
+    }
+  ];
+  document.getElementById('statsGrid').innerHTML = stats.map(s=>`
+    <div class="stat-card ${s.cls}">
+      <div class="stat-icon">${s.icon}</div>
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join('');
+}
+
+function renderTodayList(){
+  const today = new Date().toISOString().split('T')[0];
+  const trips = allBookings
+    .filter(b=>b.date===today && b.status!=='cancelled')
+    .sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const el = document.getElementById('todayList');
+  if(!trips.length){
+    el.innerHTML='<div style="text-align:center;padding:30px;color:var(--chrome);font-size:0.78rem;">No trips scheduled today</div>';
+    return;
+  }
+  el.innerHTML = trips.map(b=>`
+    <div class="today-item" onclick="openDetail('${b.id}')" style="cursor:pointer;">
+      <div class="today-time">${fmt12(b.time)}</div>
+      <div class="today-info">
+        <div class="today-name">${esc(b.name)}</div>
+        <div class="today-type">${TYPE_LABELS[b.tripType]||b.tripType} · ${b.passengers} pax</div>
+      </div>
+      <div class="status-dot" style="background:${STATUS_COLORS[b.status]||'#888'}"></div>
+    </div>`).join('');
+}
+
+function renderMiniChart(){
+  const monthly = buildMonthly();
+  const labels = monthly.map(m=>m.label);
+  const data = monthly.map(m=>m.revenue);
+  const ctx = document.getElementById('miniRevenueChart');
+  if(!ctx) return;
+  if(miniChart) miniChart.destroy();
+  miniChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        data,
+        backgroundColor:'rgba(184,200,216,0.15)',
+        borderColor:'rgba(184,200,216,0.5)',
+        borderWidth:1,
+        borderRadius:4,
+        hoverBackgroundColor:'rgba(184,200,216,0.3)'
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#18181e',borderColor:'rgba(184,200,216,0.2)',borderWidth:1,
+        titleColor:'#D8E4F0',bodyColor:'#8A9BB0',
+        callbacks:{label:ctx=>'$'+ctx.raw.toFixed(2)}
+      }},
+      scales:{
+        x:{grid:{color:'rgba(184,200,216,0.06)'},ticks:{color:'#8A9BB0',font:{size:10}}},
+        y:{grid:{color:'rgba(184,200,216,0.06)'},ticks:{color:'#8A9BB0',font:{size:10},callback:v=>'$'+v}}
+      }
+    }
+  });
+}
+
+// ── CALENDAR ──────────────────────────────────────────────
+function initCalendar(){
+  if(calendarInstance) return;
+  const el = document.getElementById('calendarEl');
+  calendarInstance = new FullCalendar.Calendar(el,{
+    initialView:'timeGridWeek',
+    headerToolbar:{left:'prev,next today',center:'title',right:'dayGridMonth,timeGridWeek,timeGridDay,listWeek'},
+    height:'auto',
+    nowIndicator:true,
+    editable:true,
+    eventDurationEditable:false,
+    slotMinTime:'04:00:00',
+    slotMaxTime:'24:00:00',
+    slotDuration:'00:30:00',
+    allDaySlot:false,
+    events: fetchCalendarEvents,
+    eventClick: info => openDetail(info.event.id),
+    eventDrop: info => {
+      const b = info.event;
+      const newDate = b.start.toISOString().split('T')[0];
+      const h = String(b.start.getHours()).padStart(2,'0');
+      const m = String(b.start.getMinutes()).padStart(2,'0');
+      const newTime = `${h}:${m}`;
+      api('PATCH',`/api/bookings/${b.id}`,{date:newDate,time:newTime})
+        .then(()=>{ loadBookings(); })
+        .catch(e=>{ alert('Error: '+e.message); info.revert(); });
+    }
+  });
+  calendarInstance.render();
+}
+
+async function fetchCalendarEvents(info, success, failure){
+  try{
+    await loadBookings();
+    const events = allBookings
+      .filter(b=>b.status!=='cancelled')
+      .map(b=>{
+        const dur = Math.max(b.estimatedMins||30, 20);
+        const start = b.date && b.time ? `${b.date}T${b.time}:00` : null;
+        if(!start) return null;
+        const startMs = new Date(start).getTime();
+        const endMs = startMs + (dur + 20)*60000;
+        return {
+          id: b.id,
+          title: `${b.name} · ${TYPE_LABELS[b.tripType]||b.tripType}`,
+          start: start,
+          end: new Date(endMs).toISOString(),
+          backgroundColor: STATUS_COLORS[b.status]||'#888',
+          borderColor:'transparent',
+          textColor:'#fff',
+          extendedProps:{booking:b}
+        };
+      }).filter(Boolean);
+    // Round trip return legs
+    allBookings.filter(b=>b.tripType==='roundtrip'&&b.returnDate&&b.returnTime&&b.status!=='cancelled').forEach(b=>{
+      const start = `${b.returnDate}T${b.returnTime}:00`;
+      const dur = Math.max(b.estimatedMins||30,20);
+      events.push({
+        id:b.id+'-return',
+        title:`↩ ${b.name} Return`,
+        start,
+        end:new Date(new Date(start).getTime()+(dur+20)*60000).toISOString(),
+        backgroundColor:'rgba(184,200,216,0.35)',
+        borderColor:'transparent',textColor:'#fff',
+        extendedProps:{booking:b}
+      });
+    });
+    success(events);
+  }catch(e){ failure(e); }
+}
+
+// ── BOOKINGS TABLE ────────────────────────────────────────
+function renderBookingsTable(){
+  let list = [...allBookings];
+  if(currentFilter !== 'all') list = list.filter(b=>b.status===currentFilter);
+  if(currentSearch) list = list.filter(b=>
+    (b.name||'').toLowerCase().includes(currentSearch)||
+    (b.id||'').toLowerCase().includes(currentSearch)||
+    (b.phone||'').includes(currentSearch)
+  );
+
+  const wrap = document.getElementById('bookingsTableWrap');
+  if(!list.length){
+    wrap.innerHTML=`<div class="empty-state"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>No bookings found</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML=`<table>
+    <thead><tr>
+      <th>Date / Time</th><th>Client</th><th>Service</th><th>Route</th>
+      <th>Total</th><th>Status</th><th>Quick Contact</th><th>Manage</th>
+    </tr></thead>
+    <tbody>${list.map(b=>bookingRow(b)).join('')}</tbody>
+  </table>`;
+}
+
+function bookingRow(b){
+  const statusClass = {pending:'s-pending',confirmed:'s-confirmed',completed:'s-completed',cancelled:'s-cancelled'}[b.status]||'s-pending';
+  const waMsg = encodeURIComponent(`Hello ${b.name}, this is BlackWave Miami. Regarding your booking ID ${b.id} on ${b.date}.`);
+  const route = b.pickupAddress ? (b.pickupAddress.split(',')[0]+(b.dropoffAddress?` → ${b.dropoffAddress.split(',')[0]}`:'')):'-';
+  const canAct = b.status !== 'cancelled' && b.status !== 'completed';
+  return `<tr onclick="openDetail('${b.id}')" style="cursor:pointer;">
+    <td class="bold">${b.date||'-'}<br/><span style="color:var(--chrome);font-size:0.74rem;">${fmt12(b.time)}</span></td>
+    <td class="bold">${esc(b.name||'-')}<br/><span style="color:var(--chrome);font-size:0.74rem;">${esc(b.phone||'')}</span></td>
+    <td>${TYPE_LABELS[b.tripType]||b.tripType||'-'}</td>
+    <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(route)}</td>
+    <td class="bold">$${parseFloat(b.total||0).toFixed(2)}<br/><span style="color:var(--chrome);font-size:0.72rem;">dep $${parseFloat(b.deposit||0).toFixed(2)}</span></td>
+    <td><span class="status-badge ${statusClass}">${b.status}</span></td>
+    <td onclick="event.stopPropagation()">
+      <div class="action-group">
+        <a class="abtn whatsapp" href="https://wa.me/${(b.phone||'').replace(/\D/g,'')}?text=${waMsg}" target="_blank" rel="noopener" title="WhatsApp">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          <span>WA</span>
+        </a>
+        <a class="abtn" href="tel:${esc(b.phone||'')}" title="Call"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.06 6.06l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg><span>Call</span></a>
+        <a class="abtn" href="mailto:${esc(b.email||'')}" title="Email"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Email</span></a>
+      </div>
+    </td>
+    <td onclick="event.stopPropagation()">
+      <div class="action-group">
+        ${canAct?`<button class="abtn green" onclick="updateStatus('${b.id}','confirmed')" title="Confirm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg><span>Confirm</span></button>`:''}
+        ${canAct?`<button class="abtn amber" onclick="openReschedule('${b.id}')" title="Reschedule"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg><span>Reschedule</span></button>`:''}
+        ${canAct?`<button class="abtn red" onclick="cancelBooking('${b.id}')" title="Cancel"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Cancel</span></button>`:''}
+        ${b.status==='confirmed'?`<button class="abtn" onclick="updateStatus('${b.id}','completed')" style="border-color:rgba(107,114,128,0.4);" title="Mark Completed"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/><polyline points="20 6 9 17 4 12" opacity="0.4" transform="translate(2,2)"/></svg><span>Done</span></button>`:''}
+      </div>
+    </td>
+  </tr>`;
+}
+
+// ── BOOKING DETAIL MODAL ──────────────────────────────────
+function openDetail(id){
+  const b = allBookings.find(x=>x.id===id||x.id===id.replace('-return',''));
+  if(!b) return;
+  const statusClass = {pending:'s-pending',confirmed:'s-confirmed',completed:'s-completed',cancelled:'s-cancelled'}[b.status]||'s-pending';
+  const canAct = b.status !== 'cancelled' && b.status !== 'completed';
+  const waMsg = encodeURIComponent(`Hello ${b.name}, this is BlackWave Miami. Regarding your booking ID ${b.id} on ${b.date}.`);
+
+  document.getElementById('detailTitle').textContent = `Booking · ${b.id}`;
+  document.getElementById('detailBody').innerHTML=`
+    <div class="info-grid">
+      <span class="info-label">Client</span><span class="info-value">${esc(b.name)}</span>
+      <span class="info-label">Phone</span><span class="info-value">${esc(b.phone||'-')}</span>
+      <span class="info-label">Email</span><span class="info-value">${esc(b.email||'-')}</span>
+      <span class="info-label">Passengers</span><span class="info-value">${b.passengers||'-'}</span>
+      <span class="info-label">Service</span><span class="info-value">${TYPE_LABELS[b.tripType]||b.tripType}</span>
+      <span class="info-label">Date</span><span class="info-value">${b.date||'-'} at ${fmt12(b.time)}</span>
+      ${b.tripType==='roundtrip'?`<span class="info-label">Return</span><span class="info-value">${b.returnDate||'-'} at ${fmt12(b.returnTime)}</span>`:''}
+      <span class="info-label">Pickup</span><span class="info-value">${esc(b.pickupAddress||'-')}</span>
+      ${b.dropoffAddress?`<span class="info-label">Dropoff</span><span class="info-value">${esc(b.dropoffAddress)}</span>`:''}
+      <span class="info-label">Est. Duration</span><span class="info-value">${b.estimatedMins||'—'} min + 20 min buffer</span>
+      <span class="info-label">Total</span><span class="info-value" style="font-size:1.1rem;color:var(--silver-hi);">$${parseFloat(b.total||0).toFixed(2)}</span>
+      <span class="info-label">Deposit</span><span class="info-value">$${parseFloat(b.deposit||0).toFixed(2)} paid</span>
+      <span class="info-label">Balance</span><span class="info-value">$${(parseFloat(b.total||0)-parseFloat(b.deposit||0)).toFixed(2)} due on pickup</span>
+      <span class="info-label">Status</span><span class="info-value"><span class="status-badge ${statusClass}">${b.status}</span></span>
+      ${b.special?`<span class="info-label">Notes</span><span class="info-value">${esc(b.special)}</span>`:''}
+    </div>`;
+
+  document.getElementById('detailFooter').innerHTML=`
+    <a class="abtn whatsapp" style="padding:10px 16px;" href="https://wa.me/${(b.phone||'').replace(/\D/g,'')}?text=${waMsg}" target="_blank" rel="noopener">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp
+    </a>
+    <a class="abtn" style="padding:10px 16px;" href="tel:${esc(b.phone||'')}">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.06 6.06l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg>
+      Call
+    </a>
+    <a class="abtn" style="padding:10px 16px;" href="mailto:${esc(b.email||'')}">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Email
+    </a>
+    ${canAct?`<button class="btn-ghost" style="padding:10px 16px;" onclick="openReschedule('${b.id}');closeDetail();">Reschedule</button>`:''}
+    ${canAct?`<button class="abtn green" style="padding:10px 16px;" onclick="updateStatus('${b.id}','confirmed');closeDetail();">Confirm</button>`:''}
+    ${canAct?`<button class="abtn red" style="padding:10px 16px;" onclick="cancelBooking('${b.id}');closeDetail();">Cancel</button>`:''}
+    ${b.status==='confirmed'?`<button class="abtn" style="padding:10px 16px;border-color:rgba(107,114,128,0.4);" onclick="updateStatus('${b.id}','completed');closeDetail();">Mark Complete</button>`:''}
+  `;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetail(){ document.getElementById('detailModal').classList.remove('open'); }
+
+// ── RESCHEDULE MODAL ──────────────────────────────────────
+function openReschedule(id){
+  activeRescheduleId = id;
+  const b = allBookings.find(x=>x.id===id);
+  if(b){ document.getElementById('rsDate').value=b.date||''; document.getElementById('rsTime').value=b.time||''; }
+  document.getElementById('rescheduleModal').classList.add('open');
+}
+function closeReschedule(){ document.getElementById('rescheduleModal').classList.remove('open'); activeRescheduleId=null; }
+async function confirmReschedule(){
+  if(!activeRescheduleId) return;
+  const date = document.getElementById('rsDate').value;
+  const time = document.getElementById('rsTime').value;
+  if(!date||!time){ alert('Please fill in date and time.'); return; }
+  try{
+    await api('PATCH',`/api/bookings/${activeRescheduleId}`,{date,time});
+    await loadBookings();
+    renderBookingsTable(); renderTodayList(); renderStats();
+    if(calendarInstance) calendarInstance.refetchEvents();
+    closeReschedule();
+  }catch(e){ alert('Error: '+e.message); }
+}
+
+// ── BOOKING ACTIONS ───────────────────────────────────────
+async function updateStatus(id, status){
+  try{
+    await api('PATCH',`/api/bookings/${id}`,{status});
+    await loadBookings();
+    renderBookingsTable(); renderTodayList(); renderStats();
+    if(calendarInstance) calendarInstance.refetchEvents();
+  }catch(e){ alert('Error: '+e.message); }
+}
+
+async function cancelBooking(id){
+  if(!confirm('Cancel this booking?')) return;
+  try{
+    await api('DELETE',`/api/bookings/${id}`);
+    await loadBookings();
+    renderBookingsTable(); renderTodayList(); renderStats();
+    if(calendarInstance) calendarInstance.refetchEvents();
+  }catch(e){ alert('Error: '+e.message); }
+}
+
+// ── REVENUE ───────────────────────────────────────────────
+let lineChartInst=null, donutInst=null, bookingsBarInst=null, typeChartInst=null;
+
+const CHART_OPTS = {
+  tooltip:{backgroundColor:'#18181e',borderColor:'rgba(184,200,216,0.2)',borderWidth:1,
+           titleColor:'#D8E4F0',bodyColor:'#8A9BB0'},
+  gridX:{color:'rgba(184,200,216,0.06)'},
+  tickColor:'#8A9BB0'
+};
+
+function buildMonthly(){
+  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const map={};
+  allBookings.filter(b=>b.status!=='cancelled').forEach(b=>{
+    if(!b.date||b.date.length<7) return;
+    const key=b.date.substring(0,7);
+    if(!map[key]) map[key]={key,bookings:0,revenue:0,deposit:0};
+    map[key].bookings++;
+    map[key].revenue+=parseFloat(b.total||0);
+    map[key].deposit+=parseFloat(b.deposit||0);
+  });
+  return Object.keys(map).sort().slice(-6).map(k=>{
+    const[y,m]=k.split('-');
+    return{...map[k],label:`${monthNames[parseInt(m)-1]} '${y.slice(2)}`};
+  });
+}
+
+function renderRevStats(){
+  const active=allBookings.filter(b=>b.status!=='cancelled');
+  const totalRev=active.reduce((s,b)=>s+parseFloat(b.total||0),0);
+  const collected=active.reduce((s,b)=>s+parseFloat(b.deposit||0),0);
+  const outstanding=totalRev-collected;
+  const avg=active.length?totalRev/active.length:0;
+  // month-over-month trend
+  const monthly=buildMonthly();
+  let trendHTML='';
+  if(monthly.length>=2){
+    const prev=monthly[monthly.length-2].revenue, curr=monthly[monthly.length-1].revenue;
+    const pct=prev>0?((curr-prev)/prev*100):0;
+    const cls=pct>0?'trend-up':pct<0?'trend-dn':'trend-neu';
+    const sign=pct>0?'+':'';
+    trendHTML=`<div class="trend-row"><span class="trend-val">$${curr.toFixed(0)}</span><span class="trend-badge ${cls}">${sign}${pct.toFixed(1)}% vs prev month</span></div>`;
+    document.getElementById('revTrend').innerHTML=`<span class="trend-badge ${cls}" style="font-size:0.72rem;">${sign}${pct.toFixed(1)}% MoM</span>`;
+  }
+  const fmt2=v=>'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const items=[
+    {label:'Total Revenue',value:fmt2(totalRev),sub:trendHTML||(active.length?'all active bookings':'no active bookings'),cls:'c-revenue'},
+    {label:'Deposits Collected',value:fmt2(collected),sub:`${active.length} active booking${active.length!==1?'s':''}`,cls:'c-confirmed'},
+    {label:'Balance Outstanding',value:fmt2(outstanding),sub:'due on pickup days',cls:'c-pending'},
+    {label:'Avg Booking Value',value:active.length?fmt2(avg):'—',sub:active.length?'per booking':'no data',cls:'c-today'},
+  ];
+  document.getElementById('revStats').innerHTML=items.map(s=>`
+    <div class="stat-card ${s.cls}">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value" style="font-size:1.5rem;">${s.value}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join('');
+}
+
+function mkChart(id,cfg){ const c=document.getElementById(id); if(!c)return null; return new Chart(c,cfg); }
+
+function fmtMoney(v){
+  if(v>=1000) return '$'+( v/1000).toFixed(1)+'k';
+  return '$'+v.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+
+function renderRevChart(){
+  const monthly=buildMonthly();
+  const ctx=document.getElementById('revChart');
+  if(!ctx)return;
+  if(revChartInstance)revChartInstance.destroy();
+
+  if(!monthly.length){
+    revChartInstance=null;
+    ctx.parentElement.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#4A5568;font-size:0.82rem;letter-spacing:1px;">No revenue data yet</div>';
+    return;
+  }
+
+  const maxRev=Math.max(...monthly.map(m=>m.revenue),1);
+  revChartInstance=mkChart('revChart',{
+    type:'bar',
+    data:{
+      labels:monthly.map(m=>m.label),
+      datasets:[
+        {label:'Total Revenue',data:monthly.map(m=>+m.revenue.toFixed(2)),
+         backgroundColor:'rgba(184,200,216,0.14)',borderColor:'rgba(184,200,216,0.55)',
+         borderWidth:1.5,borderRadius:6,borderSkipped:false},
+        {label:'Deposits Collected',data:monthly.map(m=>+m.deposit.toFixed(2)),
+         backgroundColor:'rgba(16,185,129,0.13)',borderColor:'rgba(16,185,129,0.45)',
+         borderWidth:1.5,borderRadius:6,borderSkipped:false}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#8A9BB0',font:{size:11},boxWidth:10,padding:20}},
+        tooltip:{...CHART_OPTS.tooltip,callbacks:{label:c=>`${c.dataset.label}: $${c.raw.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(184,200,216,0.05)'},ticks:{color:'#8A9BB0',font:{size:11}}},
+        y:{grid:{color:'rgba(184,200,216,0.05)'},
+           ticks:{color:'#8A9BB0',font:{size:11},callback:v=>fmtMoney(v)},
+           beginAtZero:true,
+           suggestedMax:Math.ceil(maxRev*1.15/10)*10}
+      }
+    }
+  });
+}
+
+function renderLineChart(){
+  const monthly=buildMonthly();
+  if(lineChartInst)lineChartInst.destroy();
+
+  const lineEl=document.getElementById('lineChart');
+  if(!lineEl)return;
+
+  if(!monthly.length){
+    lineChartInst=null;
+    lineEl.parentElement.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#4A5568;font-size:0.82rem;letter-spacing:1px;">No data yet</div>';
+    return;
+  }
+
+  let cum=0;
+  const cumData=monthly.map(m=>{cum+=m.revenue;return+cum.toFixed(2);});
+  const maxCum=Math.max(...cumData,1);
+  lineChartInst=mkChart('lineChart',{
+    type:'line',
+    data:{
+      labels:monthly.map(m=>m.label),
+      datasets:[{
+        label:'Cumulative Revenue',data:cumData,
+        borderColor:'rgba(184,200,216,0.7)',borderWidth:2,
+        pointBackgroundColor:'rgba(184,200,216,0.9)',pointRadius:4,pointHoverRadius:6,
+        fill:true,
+        backgroundColor:(ctx)=>{
+          if(!ctx.chart.chartArea)return'transparent';
+          const g=ctx.chart.ctx.createLinearGradient(0,ctx.chart.chartArea.top,0,ctx.chart.chartArea.bottom);
+          g.addColorStop(0,'rgba(184,200,216,0.18)');g.addColorStop(1,'rgba(184,200,216,0)');return g;
+        },
+        tension:0.4
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{...CHART_OPTS.tooltip,callbacks:{label:c=>`Cumulative: $${c.raw.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(184,200,216,0.05)'},ticks:{color:'#8A9BB0',font:{size:10}}},
+        y:{grid:{color:'rgba(184,200,216,0.05)'},
+           ticks:{color:'#8A9BB0',font:{size:10},callback:v=>fmtMoney(v)},
+           beginAtZero:true,
+           suggestedMax:Math.ceil(maxCum*1.15/10)*10}
+      }
+    }
+  });
+}
+
+function renderDonut(){
+  if(donutInst)donutInst.destroy();
+  const counts={pending:0,confirmed:0,completed:0,cancelled:0};
+  allBookings.forEach(b=>{ if(counts[b.status]!==undefined) counts[b.status]++; });
+  const labels=Object.keys(counts);
+  const data=Object.values(counts);
+  const colors=['#F59E0B','#10B981','#6B7280','#EF4444'];
+  const total=data.reduce((a,b)=>a+b,0)||1;
+
+  // Filter out zero-value segments to prevent the border-glitch on zero arcs
+  const filtered=labels.map((l,i)=>({l,d:data[i],c:colors[i]})).filter(x=>x.d>0);
+  const fLabels=filtered.map(x=>x.l);
+  const fData=filtered.map(x=>x.d);
+  const fColors=filtered.map(x=>x.c);
+
+  donutInst=mkChart('donutChart',{
+    type:'doughnut',
+    data:{
+      labels:fLabels,
+      datasets:[{
+        data:fData,
+        backgroundColor:fColors.map(c=>c+'28'),
+        borderColor:fColors,
+        borderWidth: fData.length===1 ? 0 : 1.5,
+        hoverOffset:8,
+        hoverBorderWidth:0
+      }]
+    },
+    options:{
+      responsive:false,
+      maintainAspectRatio:false,
+      cutout:'72%',
+      animation:{animateRotate:true,animateScale:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{...CHART_OPTS.tooltip,callbacks:{
+          label:c=>`${c.label}: ${c.raw} (${(c.raw/total*100).toFixed(0)}%)`
+        }}
+      }
+    }
+  });
+  document.getElementById('donutLegend').innerHTML=labels.map((l,i)=>`
+    <div class="donut-leg-item">
+      <div class="donut-dot" style="background:${colors[i]}"></div>
+      <span style="color:var(--chrome);flex:1;text-transform:capitalize;">${l}</span>
+      <span style="color:var(--white);font-weight:600;">${data[i]}</span>
+      <span style="color:var(--chrome);font-size:0.7rem;margin-left:4px;">${(data[i]/total*100).toFixed(0)}%</span>
+    </div>`).join('');
+}
+
+function renderBookingsBar(){
+  const monthly=buildMonthly();
+  if(bookingsBarInst)bookingsBarInst.destroy();
+  bookingsBarInst=mkChart('bookingsBarChart',{
+    type:'bar',
+    data:{
+      labels:monthly.map(m=>m.label),
+      datasets:[{
+        label:'Bookings',data:monthly.map(m=>m.bookings),
+        backgroundColor:'rgba(184,200,216,0.12)',borderColor:'rgba(184,200,216,0.45)',
+        borderWidth:1.5,borderRadius:5,borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{...CHART_OPTS.tooltip,callbacks:{label:c=>`${c.raw} booking${c.raw!==1?'s':''}`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(184,200,216,0.05)'},ticks:{color:'#8A9BB0',font:{size:10}}},
+        y:{grid:{color:'rgba(184,200,216,0.05)'},ticks:{color:'#8A9BB0',font:{size:10},stepSize:1},beginAtZero:true}
+      }
+    }
+  });
+}
+
+function renderTypeChart(){
+  if(typeChartInst)typeChartInst.destroy();
+  const typeEl=document.getElementById('typeChart');
+  if(!typeEl)return;
+  const TYPE_LABELS={p2p:'Point-to-Point',hourly:'Hourly',airport:'Airport',seaport:'Seaport',fisher:'Fisher Isl.',roundtrip:'Round Trip'};
+  const map={};
+  allBookings.filter(b=>b.status!=='cancelled').forEach(b=>{
+    const t=b.tripType||'other';
+    if(!map[t])map[t]=0;
+    map[t]+=parseFloat(b.total||0);
+  });
+  const entries=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+
+  if(!entries.length){
+    typeChartInst=null;
+    typeEl.parentElement.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#4A5568;font-size:0.82rem;letter-spacing:1px;">No data yet</div>';
+    return;
+  }
+
+  const maxType=Math.max(...entries.map(([,v])=>v),1);
+  const palette=['rgba(184,200,216,0.6)','rgba(16,185,129,0.6)','rgba(245,158,11,0.6)',
+                 'rgba(139,92,246,0.6)','rgba(59,130,246,0.6)','rgba(239,68,68,0.6)'];
+  typeChartInst=mkChart('typeChart',{
+    type:'bar',
+    data:{
+      labels:entries.map(([t])=>TYPE_LABELS[t]||t),
+      datasets:[{
+        label:'Revenue',data:entries.map(([,v])=>+v.toFixed(2)),
+        backgroundColor:entries.map((_,i)=>palette[i%palette.length]),
+        borderRadius:5,borderSkipped:false
+      }]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{...CHART_OPTS.tooltip,callbacks:{label:c=>`$${c.raw.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(184,200,216,0.05)'},
+           ticks:{color:'#8A9BB0',font:{size:10},callback:v=>fmtMoney(v)},
+           beginAtZero:true,
+           suggestedMax:Math.ceil(maxType*1.15/10)*10},
+        y:{grid:{display:false},ticks:{color:'#8A9BB0',font:{size:10}}}
+      }
+    }
+  });
+}
+
+// ── UTILS ─────────────────────────────────────────────────
+function esc(s){ const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
+function fmt12(t){
+  if(!t) return '-';
+  const[h,m]=t.split(':').map(Number);
+  const ampm=h>=12?'PM':'AM';
+  const h12=h%12||12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+</script>
+</body>
+</html>
