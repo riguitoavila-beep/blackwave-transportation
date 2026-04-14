@@ -3335,7 +3335,9 @@ function setupAC(inputId, cb){
                 if(ds!==google.maps.places.PlacesServiceStatus.OK||!place?.geometry){
                   showAddrHint(inputId);return;
                 }
-                inp.value=place.formatted_address;
+                // Do NOT overwrite inp.value — the user already has their chosen
+                // address displayed (typed or phone-autocompleted). Just store the
+                // geocoded place silently so the fare calculation can proceed.
                 if(!isFL(place)){
                   showAddrHint(inputId,'⚠ Solo servimos destinos dentro de Florida, USA.');
                   inp.dataset.bwValid='';
