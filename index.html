@@ -2410,12 +2410,12 @@
           <div class="form-grid">
             <div class="form-group full">
               <label class="form-label" for="p2p-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="text" id="p2p-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password"/>
+              <input type="text" id="p2p-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password" readonly/>
               <span class="form-error" id="p2p-pickup-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
             <div class="form-group full">
               <label class="form-label" for="p2p-dropoff">Dropoff Address <span style="color:var(--error)">*</span></label>
-              <input type="text" id="p2p-dropoff" class="form-control" placeholder="Enter Florida dropoff address" autocomplete="new-password"/>
+              <input type="text" id="p2p-dropoff" class="form-control" placeholder="Enter Florida dropoff address" autocomplete="new-password" readonly/>
               <span class="form-error" id="p2p-dropoff-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
           </div>
@@ -2430,7 +2430,7 @@
           <div class="form-grid">
             <div class="form-group full">
               <label class="form-label" for="hourly-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="text" id="hourly-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password"/>
+              <input type="text" id="hourly-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password" readonly/>
               <span class="form-error" id="hourly-pickup-err"></span>
             </div>
             <div class="form-group">
@@ -2467,7 +2467,7 @@
                 <span id="airport-addr-label">Pickup Address</span>
                 <span style="color:var(--error)"> *</span>
               </label>
-              <input type="text" id="airport-address" class="form-control" placeholder="Enter Florida address" autocomplete="new-password"/>
+              <input type="text" id="airport-address" class="form-control" placeholder="Enter Florida address" autocomplete="new-password" readonly/>
               <span class="form-error" id="airport-address-err"></span>
             </div>
             <div class="form-group full">
@@ -2493,7 +2493,7 @@
           <div class="form-grid">
             <div class="form-group full">
               <label class="form-label" for="seaport-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="text" id="seaport-pickup" class="form-control" placeholder="Enter Florida address" autocomplete="new-password"/>
+              <input type="text" id="seaport-pickup" class="form-control" placeholder="Enter Florida address" autocomplete="new-password" readonly/>
               <span class="form-error" id="seaport-pickup-err"></span>
             </div>
             <div class="form-group full">
@@ -2555,12 +2555,12 @@
           <div class="form-grid">
             <div class="form-group full">
               <label class="form-label" for="rt-pickup">Address A — Pickup <span style="color:var(--error)">*</span></label>
-              <input type="text" id="rt-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password"/>
+              <input type="text" id="rt-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password" readonly/>
               <span class="form-error" id="rt-pickup-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
             <div class="form-group full">
               <label class="form-label" for="rt-dropoff">Address B — Destination <span style="color:var(--error)">*</span></label>
-              <input type="text" id="rt-dropoff" class="form-control" placeholder="Enter Florida destination address" autocomplete="new-password"/>
+              <input type="text" id="rt-dropoff" class="form-control" placeholder="Enter Florida destination address" autocomplete="new-password" readonly/>
               <span class="form-error" id="rt-dropoff-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
           </div>
@@ -3276,8 +3276,12 @@ function setupAC(inputId, cb){
     });
 
     /* ── Fix 1: autofill prevention ──
-       Google Maps resets autocomplete to "off" internally; we override it
-       after init. "new-password" is respected by Safari/Chrome unlike "off". */
+       Each input starts with readonly in HTML so iOS/Android cannot autofill
+       multiple address fields at the same time. readonly is removed permanently
+       the first time the user taps/clicks this specific field.
+       Google Maps also resets autocomplete to "off" internally; we override it
+       to "new-password" which Safari/Chrome actually respect. */
+    inp.addEventListener('focus', () => inp.removeAttribute('readonly'), {once: true});
     inp.setAttribute('autocomplete','new-password');
     inp.setAttribute('name','bw_addr_'+inputId+'_x');
 
