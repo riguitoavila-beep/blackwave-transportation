@@ -567,6 +567,14 @@ class StaticServlet < WEBrick::HTTPServlet::AbstractServlet
         "object-src 'none'; base-uri 'self'".freeze
 
   def do_GET(req, res)
+    # Healthcheck — Railway pings this before routing is fully tested
+    if req.path == '/api/health' || req.path == '/api/health/'
+      res.status = 200
+      res['Content-Type'] = 'application/json'
+      res.body = JSON.generate({ status: 'ok', time: Time.now.iso8601 })
+      return
+    end
+
     # Normalise path
     raw = req.path.dup
     raw = '/index.html' if raw == '/' || raw.empty?
