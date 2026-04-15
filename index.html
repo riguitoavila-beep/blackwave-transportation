@@ -2423,14 +2423,14 @@
           <p class="form-section-title" style="margin-top:24px;">Route</p>
           <div class="form-grid">
             <div class="form-group full">
-              <label class="form-label" for="p2p-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="search" id="p2p-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off"/>
-              <span class="form-error" id="p2p-pickup-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+              <label class="form-label" for="bw_orig_01">Pickup Address <span style="color:var(--error)">*</span></label>
+              <input type="search" id="bw_orig_01" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off" autocorrect="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"/>
+              <span class="form-error" id="bw_orig_01-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
             <div class="form-group full">
-              <label class="form-label" for="p2p-dropoff">Dropoff Address <span style="color:var(--error)">*</span></label>
-              <input type="search" id="p2p-dropoff" class="form-control" placeholder="Enter Florida dropoff address" autocomplete="off"/>
-              <span class="form-error" id="p2p-dropoff-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+              <label class="form-label" for="bw_dest_02">Dropoff Address <span style="color:var(--error)">*</span></label>
+              <input type="search" id="bw_dest_02" class="form-control" placeholder="Enter Florida dropoff address" autocomplete="off" autocorrect="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"/>
+              <span class="form-error" id="bw_dest_02-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
           </div>
         </div>
@@ -2443,9 +2443,9 @@
           <p class="form-section-title" style="margin-top:24px;">Service Details</p>
           <div class="form-grid">
             <div class="form-group full">
-              <label class="form-label" for="hourly-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="search" id="hourly-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off"/>
-              <span class="form-error" id="hourly-pickup-err"></span>
+              <label class="form-label" for="bw_orig_hr">Pickup Address <span style="color:var(--error)">*</span></label>
+              <input type="search" id="bw_orig_hr" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off" autocorrect="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"/>
+              <span class="form-error" id="bw_orig_hr-err"></span>
             </div>
             <div class="form-group">
               <label class="form-label" for="hourly-hours">Number of Hours <span style="color:var(--error)">*</span></label>
@@ -2477,12 +2477,12 @@
               </div>
             </div>
             <div class="form-group full">
-              <label class="form-label" for="airport-address">
+              <label class="form-label" for="bw_orig_ap">
                 <span id="airport-addr-label">Pickup Address</span>
                 <span style="color:var(--error)"> *</span>
               </label>
-              <input type="search" id="airport-address" class="form-control" placeholder="Enter Florida address" autocomplete="off"/>
-              <span class="form-error" id="airport-address-err"></span>
+              <input type="search" id="bw_orig_ap" class="form-control" placeholder="Enter Florida address" autocomplete="off" autocorrect="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"/>
+              <span class="form-error" id="bw_orig_ap-err"></span>
             </div>
             <div class="form-group full">
               <label class="form-label" for="airport-select">Select Airport <span style="color:var(--error)">*</span></label>
@@ -2506,9 +2506,9 @@
           <p class="form-section-title" style="margin-top:24px;">Transfer Details</p>
           <div class="form-grid">
             <div class="form-group full">
-              <label class="form-label" for="seaport-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="search" id="seaport-pickup" class="form-control" placeholder="Enter Florida address" autocomplete="off"/>
-              <span class="form-error" id="seaport-pickup-err"></span>
+              <label class="form-label" for="bw_orig_sp">Pickup Address <span style="color:var(--error)">*</span></label>
+              <input type="search" id="bw_orig_sp" class="form-control" placeholder="Enter Florida address" autocomplete="off" autocorrect="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"/>
+              <span class="form-error" id="bw_orig_sp-err"></span>
             </div>
             <div class="form-group full">
               <label class="form-label" for="seaport-select">Select Port <span style="color:var(--error)">*</span></label>
@@ -2568,14 +2568,14 @@
           <p class="form-section-title" style="margin-top:24px;">Route</p>
           <div class="form-grid">
             <div class="form-group full">
-              <label class="form-label" for="rt-pickup">Address A — Pickup <span style="color:var(--error)">*</span></label>
-              <input type="search" id="rt-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off"/>
-              <span class="form-error" id="rt-pickup-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+              <label class="form-label" for="bw_wpt_01">Address A — Pickup <span style="color:var(--error)">*</span></label>
+              <input type="search" id="bw_wpt_01" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off" autocorrect="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"/>
+              <span class="form-error" id="bw_wpt_01-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
             <div class="form-group full">
-              <label class="form-label" for="rt-dropoff">Address B — Destination <span style="color:var(--error)">*</span></label>
-              <input type="search" id="rt-dropoff" class="form-control" placeholder="Enter Florida destination address" autocomplete="off"/>
-              <span class="form-error" id="rt-dropoff-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+              <label class="form-label" for="bw_wpt_02">Address B — Destination <span style="color:var(--error)">*</span></label>
+              <input type="search" id="bw_wpt_02" class="form-control" placeholder="Enter Florida destination address" autocomplete="off" autocorrect="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"/>
+              <span class="form-error" id="bw_wpt_02-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
           </div>
 
@@ -3277,6 +3277,20 @@ function clearAddrHint(inputId){
   if(errEl) errEl.classList.remove('show');
 }
 
+/* ── Helper: build display label for a Google Place ─────────────────────
+   If the place has a name (hotel, venue, landmark) that differs from its
+   street address, show BOTH so the driver knows the exact destination.
+   e.g. "Fontainebleau Miami Beach, 4441 Collins Ave, Miami Beach, FL 33140" */
+function placeLabel(p){
+  if(!p) return '';
+  const name = (p.name||'').trim();
+  const addr = (p.formatted_address||'').trim();
+  if(name && addr && !addr.toLowerCase().startsWith(name.toLowerCase())){
+    return name+', '+addr;
+  }
+  return addr||name;
+}
+
 /* setupAC — scope global, accesible desde initMaps */
 function setupAC(inputId, cb){
   if(autocompletes[inputId])return;
@@ -3284,16 +3298,30 @@ function setupAC(inputId, cb){
   const inp=document.getElementById(inputId);
   if(!inp)return;
   try{
+    // Request 'name' so hotels/venues are preserved in the display label
     const ac=new google.maps.places.Autocomplete(inp,{
       componentRestrictions:{country:'us'},
-      fields:['address_components','geometry','formatted_address']
+      fields:['name','address_components','geometry','formatted_address']
     });
 
-    /* type="search" already blocks OS autofill; belt-and-suspenders: also
-       set a nonsense autocomplete value after Maps resets it to "off" */
-    inp.setAttribute('autocomplete','search');
+    /* ── Autofill shield ─────────────────────────────────────────────────
+       type="search"  →  OS never offers Contact/address autofill
+       autocomplete="off" + random name  →  browser form-fill disabled
+       readonly + onfocus removal  →  belt-and-suspenders for stubborn UAs
+       Each layer is independent; together they cover every device/browser. */
+    inp.setAttribute('autocomplete','off');
+    inp.setAttribute('name','bwloc_'+inputId+'_'+Math.random().toString(36).slice(2,7));
+    inp.setAttribute('autocorrect','off');
+    inp.setAttribute('spellcheck','false');
+    // readonly is already set in HTML; remove it the moment user focuses
+    inp.addEventListener('focus',()=>inp.removeAttribute('readonly'),{once:true});
 
-    /* ── User picked a place from the Google Maps dropdown ── */
+    /* ── Requirement 3: each AC instance is isolated ────────────────────
+       The ac object is stored keyed by inputId; callbacks write to
+       different bState properties (pickupPlace vs dropoffPlace), so a
+       selection in one field never touches another field's state.        */
+
+    /* ── User selected from the Google Maps dropdown ── */
     ac.addListener('place_changed',()=>{
       const p=ac.getPlace();
       if(!p||!p.geometry)return;
@@ -3302,13 +3330,14 @@ function setupAC(inputId, cb){
         inp.dataset.bwValid='';
         cb(null);return;
       }
-      inp.value=p.formatted_address;
+      // ── Req 2: preserve hotel/venue name ──
+      inp.value=placeLabel(p);
       clearAddrHint(inputId);
       inp.dataset.bwValid='1';
       cb(p);
     });
 
-    /* ── User edited the field — invalidate previous selection ── */
+    /* ── User edits the field manually → invalidate previous selection ── */
     inp.addEventListener('input',()=>{
       if(inp.dataset.bwValid==='1'){
         inp.dataset.bwValid='';
@@ -3316,9 +3345,10 @@ function setupAC(inputId, cb){
       }
     },{passive:true});
 
-    /* ── On blur: if field has text but no confirmed pick, geocode it ──
-       Location-biased to Miami so "123 SW 8 St" resolves locally, not
-       to some other Florida city.                                       */
+    /* ── Blur: user left without picking from list ───────────────────────
+       Req 4: attempt to auto-resolve with the first Google prediction
+       (location-biased to Miami). If resolution succeeds → accept.
+       If it fails → clear the field completely so no bad data is used.  */
     inp.addEventListener('blur',()=>{
       setTimeout(()=>{
         if(!inp.value.trim()||inp.dataset.bwValid==='1')return;
@@ -3331,18 +3361,30 @@ function setupAC(inputId, cb){
           })
         },(preds,status)=>{
           if(status!==google.maps.places.PlacesServiceStatus.OK||!preds?.length){
-            showAddrHint(inputId);return;
+            // Cannot resolve → clear field so stale text doesn't block fare calc
+            inp.value='';
+            inp.dataset.bwValid='';
+            cb(null);
+            showAddrHint(inputId,'Please type an address and select from the list.');
+            return;
           }
           const ghost=document.createElement('div');
           ghost.style.cssText='position:absolute;visibility:hidden;pointer-events:none;';
           document.body.appendChild(ghost);
           new google.maps.places.PlacesService(ghost).getDetails(
-            {placeId:preds[0].place_id,fields:['address_components','geometry','formatted_address']},
+            {placeId:preds[0].place_id,fields:['name','address_components','geometry','formatted_address']},
             (place,ds)=>{
               ghost.remove();
-              if(ds!==google.maps.places.PlacesServiceStatus.OK||!place?.geometry){showAddrHint(inputId);return;}
-              if(!isFL(place)){showAddrHint(inputId,'⚠ We only serve Florida, USA destinations.');inp.dataset.bwValid='';cb(null);return;}
-              inp.value=place.formatted_address;
+              if(ds!==google.maps.places.PlacesServiceStatus.OK||!place?.geometry){
+                inp.value='';inp.dataset.bwValid='';cb(null);
+                showAddrHint(inputId,'Please type an address and select from the list.');
+                return;
+              }
+              if(!isFL(place)){
+                showAddrHint(inputId,'⚠ We only serve Florida, USA destinations.');
+                inp.value='';inp.dataset.bwValid='';cb(null);return;
+              }
+              inp.value=placeLabel(place);
               clearAddrHint(inputId);
               inp.dataset.bwValid='1';
               cb(place);
@@ -3359,13 +3401,13 @@ function setupAC(inputId, cb){
 /* setupAllACs — inicializa todos los campos de dirección a la vez */
 function setupAllACs(){
   if(!window.google||!google.maps||!google.maps.places)return;
-  setupAC('p2p-pickup',      function(p){bState.pickupPlace=p; if(window._recalcP2P)window._recalcP2P();});
-  setupAC('p2p-dropoff',     function(p){bState.dropoffPlace=p; if(window._recalcP2P)window._recalcP2P();});
-  setupAC('hourly-pickup',   function(p){bState.pickupPlace=p;});
-  setupAC('airport-address', function(p){bState.pickupPlace=p; if(window._recalcAirport)window._recalcAirport();});
-  setupAC('seaport-pickup',  function(p){bState.pickupPlace=p; if(window._recalcSeaport)window._recalcSeaport();});
-  setupAC('rt-pickup',       function(p){bState.rtPickupPlace=p; if(window._recalcRoundTrip)window._recalcRoundTrip();});
-  setupAC('rt-dropoff',      function(p){bState.rtDropoffPlace=p; if(window._recalcRoundTrip)window._recalcRoundTrip();});
+  setupAC('bw_orig_01',      function(p){bState.pickupPlace=p; if(window._recalcP2P)window._recalcP2P();});
+  setupAC('bw_dest_02',     function(p){bState.dropoffPlace=p; if(window._recalcP2P)window._recalcP2P();});
+  setupAC('bw_orig_hr',   function(p){bState.pickupPlace=p;});
+  setupAC('bw_orig_ap', function(p){bState.pickupPlace=p; if(window._recalcAirport)window._recalcAirport();});
+  setupAC('bw_orig_sp',  function(p){bState.pickupPlace=p; if(window._recalcSeaport)window._recalcSeaport();});
+  setupAC('bw_wpt_01',       function(p){bState.rtPickupPlace=p; if(window._recalcRoundTrip)window._recalcRoundTrip();});
+  setupAC('bw_wpt_02',      function(p){bState.rtDropoffPlace=p; if(window._recalcRoundTrip)window._recalcRoundTrip();});
   console.log('[BlackWave] setupAllACs completado');
 }
 
