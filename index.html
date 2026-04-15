@@ -2410,12 +2410,12 @@
           <div class="form-grid">
             <div class="form-group full">
               <label class="form-label" for="p2p-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="text" id="p2p-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password" readonly/>
+              <input type="text" id="p2p-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off"/>
               <span class="form-error" id="p2p-pickup-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
             <div class="form-group full">
               <label class="form-label" for="p2p-dropoff">Dropoff Address <span style="color:var(--error)">*</span></label>
-              <input type="text" id="p2p-dropoff" class="form-control" placeholder="Enter Florida dropoff address" autocomplete="new-password" readonly/>
+              <input type="text" id="p2p-dropoff" class="form-control" placeholder="Enter Florida dropoff address" autocomplete="off"/>
               <span class="form-error" id="p2p-dropoff-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
           </div>
@@ -2430,7 +2430,7 @@
           <div class="form-grid">
             <div class="form-group full">
               <label class="form-label" for="hourly-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="text" id="hourly-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password" readonly/>
+              <input type="text" id="hourly-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off"/>
               <span class="form-error" id="hourly-pickup-err"></span>
             </div>
             <div class="form-group">
@@ -2467,7 +2467,7 @@
                 <span id="airport-addr-label">Pickup Address</span>
                 <span style="color:var(--error)"> *</span>
               </label>
-              <input type="text" id="airport-address" class="form-control" placeholder="Enter Florida address" autocomplete="new-password" readonly/>
+              <input type="text" id="airport-address" class="form-control" placeholder="Enter Florida address" autocomplete="off"/>
               <span class="form-error" id="airport-address-err"></span>
             </div>
             <div class="form-group full">
@@ -2493,7 +2493,7 @@
           <div class="form-grid">
             <div class="form-group full">
               <label class="form-label" for="seaport-pickup">Pickup Address <span style="color:var(--error)">*</span></label>
-              <input type="text" id="seaport-pickup" class="form-control" placeholder="Enter Florida address" autocomplete="new-password" readonly/>
+              <input type="text" id="seaport-pickup" class="form-control" placeholder="Enter Florida address" autocomplete="off"/>
               <span class="form-error" id="seaport-pickup-err"></span>
             </div>
             <div class="form-group full">
@@ -2555,12 +2555,12 @@
           <div class="form-grid">
             <div class="form-group full">
               <label class="form-label" for="rt-pickup">Address A — Pickup <span style="color:var(--error)">*</span></label>
-              <input type="text" id="rt-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="new-password" readonly/>
+              <input type="text" id="rt-pickup" class="form-control" placeholder="Enter Florida pickup address" autocomplete="off"/>
               <span class="form-error" id="rt-pickup-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
             <div class="form-group full">
               <label class="form-label" for="rt-dropoff">Address B — Destination <span style="color:var(--error)">*</span></label>
-              <input type="text" id="rt-dropoff" class="form-control" placeholder="Enter Florida destination address" autocomplete="new-password" readonly/>
+              <input type="text" id="rt-dropoff" class="form-control" placeholder="Enter Florida destination address" autocomplete="off"/>
               <span class="form-error" id="rt-dropoff-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             </div>
           </div>
@@ -3210,6 +3210,9 @@ const PORT_COORDS = {
 
 let dms=null, mapsReady=false, squarePayments=null, squareCard=null;
 const autocompletes={}, commonFieldsSetup={};
+// Tracks which address field the user is currently focused on.
+// Used to detect & reject OS autofill arriving on non-focused fields.
+let _bwFocusedAddr=null;
 const bState={tripType:null,total:0,deposit:0,pickupPlace:null,dropoffPlace:null,
   pickupZip:'',hours:0,airport:'',seaport:'',fisherDest:'',airportDirection:'to',surchargeReason:'',
   rtPickupPlace:null,rtDropoffPlace:null,
@@ -3275,82 +3278,104 @@ function setupAC(inputId, cb){
       fields:['address_components','geometry','formatted_address']
     });
 
-    /* ── Fix 1: autofill prevention ──
-       Each input starts with readonly in HTML so iOS/Android cannot autofill
-       multiple address fields at the same time. readonly is removed permanently
-       the first time the user taps/clicks this specific field.
-       Google Maps also resets autocomplete to "off" internally; we override it
-       to "new-password" which Safari/Chrome actually respect. */
-    inp.addEventListener('focus', () => inp.removeAttribute('readonly'), {once: true});
-    inp.setAttribute('autocomplete','new-password');
-    inp.setAttribute('name','bw_addr_'+inputId+'_x');
+    /* ── Autofill prevention ──────────────────────────────────────────────
+       iOS/iPadOS autofill ignores readonly AND new-password — it sets the
+       value property directly. The only reliable approach is:
+       1. Give each input a unique, random autocomplete token the OS can't
+          match to any saved address category.
+       2. Track which field has focus. Any field that receives an `input`
+          event while NOT focused is being filled by the OS on its own —
+          detect it and clear it immediately.                              */
+    const _token='bw-'+inputId+'-'+Math.random().toString(36).slice(2,8);
+    inp.setAttribute('autocomplete', _token);
+    inp.setAttribute('name', _token);
 
-    /* ── place_changed: user selected from dropdown ── */
+    /* Track focus so we can detect cross-field autofill */
+    inp.addEventListener('focus', ()=>{ _bwFocusedAddr=inputId; },{passive:true});
+    inp.addEventListener('blur',  ()=>{ if(_bwFocusedAddr===inputId) _bwFocusedAddr=null; },{passive:true});
+
+    /* ── place_changed: user selected a suggestion from Google Maps ──── */
     ac.addListener('place_changed',()=>{
       const p=ac.getPlace();
       if(!p||!p.geometry)return;
-      const errEl=document.getElementById(inputId+'-err');
       if(!isFL(p)){
-        inp.classList.add('error');
-        if(errEl){errEl.textContent='⚠ Solo servimos destinos dentro de Florida, USA.';errEl.classList.add('show');}
+        showAddrHint(inputId,'⚠ We only serve Florida, USA destinations.');
         inp.dataset.bwValid='';
         cb(null);return;
       }
+      /* Show the properly formatted Google address in the field */
+      inp.value=p.formatted_address;
       clearAddrHint(inputId);
       inp.dataset.bwValid='1';
       cb(p);
     });
 
-    /* ── Fix 2a: invalidate stored place when user edits the field ── */
+    /* ── input event ─────────────────────────────────────────────────────
+       Two cases:
+       A) This field is focused → user is typing. Invalidate old selection.
+       B) This field is NOT focused → OS autofilled it without user intent.
+          Clear the field immediately.                                     */
     inp.addEventListener('input',()=>{
+      if(_bwFocusedAddr!==inputId){
+        /* Case B: iPad/iPhone filled this field while user was on another one */
+        inp.value='';
+        inp.dataset.bwValid='';
+        clearAddrHint(inputId);
+        return;
+      }
+      /* Case A: user is typing — invalidate any previous Google selection */
       if(inp.dataset.bwValid==='1'){
         inp.dataset.bwValid='';
-        cb(null); // clear bState place; recalc functions guard against null
+        cb(null);
       }
     },{passive:true});
 
-    /* ── Fix 2b: force-select on blur ──
-       If user typed but never clicked a suggestion, auto-resolve via
-       AutocompleteService → PlacesService and fill the validated place.
-       Falls back to an inline hint if Google can't resolve the text. */
+    /* ── blur geocoder ───────────────────────────────────────────────────
+       If the field has text but no Google Maps selection (user typed or
+       used phone autofill without picking from the dropdown), silently
+       geocode the text to get valid coordinates for the fare calculation.
+       Location-biased to Miami so partial addresses resolve correctly.
+       The field value is updated with the properly formatted address.    */
     inp.addEventListener('blur',()=>{
       setTimeout(()=>{
         if(!inp.value.trim()||inp.dataset.bwValid==='1')return;
         const acSvc=new google.maps.places.AutocompleteService();
-        acSvc.getPlacePredictions(
-          {input:inp.value,componentRestrictions:{country:'us'}},
-          (preds,status)=>{
-            if(status!==google.maps.places.PlacesServiceStatus.OK||!preds?.length){
-              showAddrHint(inputId);return;
-            }
-            // Use an invisible div as the PlacesService attribution container
-            const ghost=document.createElement('div');
-            ghost.style.cssText='position:absolute;visibility:hidden;pointer-events:none;';
-            document.body.appendChild(ghost);
-            const pSvc=new google.maps.places.PlacesService(ghost);
-            pSvc.getDetails(
-              {placeId:preds[0].place_id,fields:['address_components','geometry','formatted_address']},
-              (place,ds)=>{
-                ghost.remove();
-                if(ds!==google.maps.places.PlacesServiceStatus.OK||!place?.geometry){
-                  showAddrHint(inputId);return;
-                }
-                // Do NOT overwrite inp.value — the user already has their chosen
-                // address displayed (typed or phone-autocompleted). Just store the
-                // geocoded place silently so the fare calculation can proceed.
-                if(!isFL(place)){
-                  showAddrHint(inputId,'⚠ Solo servimos destinos dentro de Florida, USA.');
-                  inp.dataset.bwValid='';
-                  cb(null);return;
-                }
-                clearAddrHint(inputId);
-                inp.dataset.bwValid='1';
-                cb(place);
-              }
-            );
+        acSvc.getPlacePredictions({
+          input: inp.value,
+          componentRestrictions: {country:'us'},
+          locationBias: new google.maps.Circle({
+            center:{lat:25.7617,lng:-80.1918}, // Miami
+            radius:80000                        // 80 km radius
+          })
+        },(preds,status)=>{
+          if(status!==google.maps.places.PlacesServiceStatus.OK||!preds?.length){
+            showAddrHint(inputId);return;
           }
-        );
-      },250); // 250 ms: let place_changed fire first if user just clicked a suggestion
+          const ghost=document.createElement('div');
+          ghost.style.cssText='position:absolute;visibility:hidden;pointer-events:none;';
+          document.body.appendChild(ghost);
+          const pSvc=new google.maps.places.PlacesService(ghost);
+          pSvc.getDetails(
+            {placeId:preds[0].place_id,fields:['address_components','geometry','formatted_address']},
+            (place,ds)=>{
+              ghost.remove();
+              if(ds!==google.maps.places.PlacesServiceStatus.OK||!place?.geometry){
+                showAddrHint(inputId);return;
+              }
+              if(!isFL(place)){
+                showAddrHint(inputId,'⚠ We only serve Florida, USA destinations.');
+                inp.dataset.bwValid='';
+                cb(null);return;
+              }
+              /* Update field with the clean, fully-formatted address */
+              inp.value=place.formatted_address;
+              clearAddrHint(inputId);
+              inp.dataset.bwValid='1';
+              cb(place);
+            }
+          );
+        });
+      },300); // 300 ms — lets place_changed fire first on tap selection
     },{passive:true});
 
     autocompletes[inputId]=ac;
