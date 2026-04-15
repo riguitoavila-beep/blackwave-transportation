@@ -3142,7 +3142,7 @@
   </div>
 
   <div class="footer-bottom">
-    <p class="footer-copy">© 2025 BlackWave Miami Transportation. All Rights Reserved.</p>
+    <p class="footer-copy">© 2026 BlackWave Miami Transportation. All Rights Reserved.</p>
     <p class="footer-fine">Commercially insured · All permits and licenses current · Florida licensed transportation provider</p>
   </div>
 </footer>
@@ -3688,7 +3688,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     function autoplay(){
       clearInterval(timer);
-      timer=setInterval(()=>goTo(idx+1), 1500);
+      timer=setInterval(()=>goTo(idx+1), 5000);
     }
 
     // Touch / pointer swipe
@@ -3945,8 +3945,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(!pu||!dr){clearPrice();return;}
     withDMS(pu.geometry.location,dr.geometry.location,(miles,mins,dt,dur)=>{
       bState.estimatedMins=Math.ceil(mins);
-      bState.pickupAddress=pu.formatted_address||'';
-      bState.dropoffAddress=dr.formatted_address||'';
+      bState.pickupAddress=placeLabel(pu)||'';
+      bState.dropoffAddress=placeLabel(dr)||'';
       const{fare,surge,reason}=calcP2P(miles,mins,date,time);
       renderPrice([
         {l:'Base Fare',v:'$10.00'},
@@ -3967,8 +3967,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(!pu||!dr||!date1||!time1||!date2||!time2){clearPrice();return;}
     withDMS(pu.geometry.location,dr.geometry.location,(miles,mins,dt,dur)=>{
       bState.estimatedMins=Math.ceil(mins);
-      bState.pickupAddress=pu.formatted_address||'';
-      bState.dropoffAddress=dr.formatted_address||'';
+      bState.pickupAddress=placeLabel(pu)||'';
+      bState.dropoffAddress=placeLabel(dr)||'';
       const rate=miles<=90?4:3.5;
       const tRate=miles<=90?1:0.8;
       const{fare:fare1,surge:surge1,reason:reason1}=calcP2P(miles,mins,date1,time1);
@@ -3997,7 +3997,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const zip=getZip(place);
     bState.pickupZip=zip;
 
-    bState.pickupAddress=place.formatted_address||'';
+    bState.pickupAddress=placeLabel(place)||'';
     bState.dropoffAddress=ap||'';
     if(MIAMI_BEACH_ZIPS.includes(zip)){
       if(ap==='MIA'){
@@ -4035,6 +4035,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     const zip=getZip(place);
 
     if(port==='everglades'){
+      bState.pickupAddress=placeLabel(place)||'';
+      bState.dropoffAddress='Port Everglades, Fort Lauderdale, FL';
       renderPrice([{l:'Any Florida Address → Port Everglades',v:'$160.00 (fixed)'}],160,'');
       return;
     }
@@ -4045,6 +4047,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     const[h,m]=(time||'00:00').split(':').map(Number);
     const cruiseHr=h*60+m>=600&&h*60+m<=750;
     const cruiseSurge=wknd&&cruiseHr;
+
+    bState.pickupAddress=placeLabel(place)||'';
+    bState.dropoffAddress='Port of Miami (PortMiami), Miami, FL';
 
     if(isMB){
       const total=cruiseSurge?100:65;
@@ -4065,6 +4070,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     bState.hours=hrs;
     if(!hrs){clearPrice();return;}
     bState.estimatedMins=hrs*60;
+    if(bState.pickupPlace) bState.pickupAddress=placeLabel(bState.pickupPlace)||'';
+    bState.dropoffAddress='';
     const total=hrs*90;
     renderPrice([{l:'Rate',v:'$90 / hour'},{l:'Hours',v:hrs+(hrs===6?'+':'')},{l:'Subtotal',v:fmt(total)}],total,'');
   }
@@ -4198,11 +4205,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
     const d=getCommon();
     const tl={p2p:'Point-to-Point',hourly:'Hourly Service',airport:'Airport Transfer',seaport:'Seaport Transfer',fisher:'Fisher Island Transfer',roundtrip:'Round Trip'};
+    const isRT=bState.tripType==='roundtrip';
     document.getElementById('bookingSummaryBox').innerHTML=
       `<div style="display:grid;grid-template-columns:auto 1fr;gap:4px 16px;">
         <span style="color:var(--text-secondary)">Name</span><span>${esc(d.name)}</span>
         <span style="color:var(--text-secondary)">Trip</span><span>${esc(tl[bState.tripType]||bState.tripType)}</span>
-        <span style="color:var(--text-secondary)">Date</span><span>${esc(d.date)} at ${esc(d.time)}</span>
+        <span style="color:var(--text-secondary)">${isRT?'Outbound':'Date'}</span><span>${esc(d.date)} at ${esc(d.time)}</span>
+        ${isRT&&d.returnDate?`<span style="color:var(--text-secondary)">Return</span><span>${esc(d.returnDate)} at ${esc(d.returnTime)}</span>`:''}
         <span style="color:var(--text-secondary)">Passengers</span><span>${esc(d.passengers)}</span>
         <span style="color:var(--text-secondary)">Total Fare</span><span>${esc(fmt(bState.total))}</span>
       </div>`;
