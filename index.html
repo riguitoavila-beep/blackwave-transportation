@@ -63,7 +63,11 @@
     "geo": { "@type": "GeoCoordinates", "latitude": 25.7617, "longitude": -80.1918 },
     "openingHours": "Mo-Su 00:00-23:59",
     "priceRange": "$$$$",
-    "sameAs": ["https://wa.me/17867542078"]
+    "sameAs": [
+      "https://wa.me/17867542078",
+      "https://www.instagram.com/blackwavemiami/",
+      "https://www.facebook.com/people/BlackWave-Miami-Transportation-Corp/61588860662507/"
+    ]
   }
   </script>
 
@@ -1528,6 +1532,16 @@
       margin: 12px 0;
       border-radius: 0 2px 2px 0;
     }
+    .stadium-notice {
+      background: rgba(201,162,39,0.08);
+      border-left: 2px solid #C9A227;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin: 12px 0;
+      border-radius: 0 2px 2px 0;
+    }
     .price-empty {
       padding: 24px 0 8px;
     }
@@ -1934,6 +1948,27 @@
     /* ══════════════════════════════════════════════════════
        FLOATING BUTTONS
     ══════════════════════════════════════════════════════ */
+    /* Alert ring — a fully independent fixed element, not nested inside
+       the button at all, so the button's overflow:hidden can never clip it. */
+    .wa-ring {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      right: calc(24px + env(safe-area-inset-right));
+      z-index: 499;
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(37,211,102,0.4);
+      animation: pulsing 2.5s ease-out infinite;
+      pointer-events: none;
+    }
+    @keyframes pulsing {
+      0%   { transform: scale(1);   opacity: 0.8; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    /* Perfect circle the canonical way: square element + border-radius:50%.
+       No mask (a mask reveals the whole square and cancels the rounding),
+       no overflow, no inset dark shadow (which can look like a cut edge).
+       The background gradient is clipped to the rounded shape automatically. */
     .float-whatsapp {
       position: fixed;
       bottom: calc(28px + env(safe-area-inset-bottom));
@@ -1941,28 +1976,18 @@
       z-index: 500;
       width: 56px; height: 56px;
       border-radius: 50%;
-      background: var(--whatsapp);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 20px rgba(37,211,102,0.35);
-      transition: transform 0.3s var(--ease-smooth), box-shadow 0.3s;
+      background: linear-gradient(160deg, #2FE377, #128C7E);
+      box-shadow: 0 4px 16px rgba(37,211,102,0.45);
+      transition: transform 0.3s var(--ease-smooth);
       cursor: pointer;
     }
-    .float-whatsapp:hover { transform: scale(1.1); box-shadow: 0 8px 30px rgba(37,211,102,0.5); }
-    .float-whatsapp svg { width: 28px; height: 28px; color: #fff; }
-    .float-whatsapp::before {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      border: 2px solid rgba(37,211,102,0.4);
-      animation: pulsing 2.5s ease-out infinite;
-    }
-    @keyframes pulsing {
-      0%   { transform: scale(1);   opacity: 0.8; }
-      100% { transform: scale(1.6); opacity: 0; }
-    }
+    .float-whatsapp:hover { transform: scale(1.1); }
+    .float-whatsapp:focus-visible { outline: 2px solid var(--silver); outline-offset: 3px; }
+    /* Icon well inside the circle so it never touches the edge. */
+    .float-whatsapp svg { width: 26px; height: 26px; color: #fff; pointer-events: none; flex-shrink: 0; }
     .float-whatsapp .tooltip {
       position: absolute;
       right: 68px;
@@ -1980,6 +2005,91 @@
       transition: opacity 0.3s;
     }
     .float-whatsapp:hover .tooltip { opacity: 1; }
+
+    /* ── Social bubble — an invisible zone above WhatsApp. At rest the two
+       icons sit CLUSTERED together (IG bigger · FB smaller, nested close)
+       and drift gently. On hover/tap they burst OUTWARD — growing to the
+       same size and opening into a neat centred column (inside-out).
+       Each effect owns a different property group so they never conflict:
+         · drift  → transform (the animation)
+         · layout → top / left (clustered ↔ column)
+         · size   → width / height (small ↔ big)                         */
+    .float-social-bubble {
+      position: fixed;
+      bottom: calc(28px + 56px + 14px + env(safe-area-inset-bottom));
+      right: calc(28px + env(safe-area-inset-right));
+      z-index: 500;
+      width: 56px; height: 92px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .float-social {
+      position: absolute;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition:
+        top    0.35s cubic-bezier(0.34,1.56,0.64,1),
+        left   0.35s cubic-bezier(0.34,1.56,0.64,1),
+        width  0.35s cubic-bezier(0.34,1.56,0.64,1),
+        height 0.35s cubic-bezier(0.34,1.56,0.64,1),
+        box-shadow 0.3s ease;
+      animation: bubbleDrift 4s ease-in-out infinite;
+    }
+    .float-social svg {
+      width: 45%; height: 45%;
+      color: #fff; pointer-events: none; flex-shrink: 0;
+    }
+    /* Instagram — bigger, sits slightly up-left. Glossy highlight = 3D bubble. */
+    .float-social.ig {
+      width: 34px; height: 34px;
+      top: 4px; left: 3px;
+      z-index: 1;
+      background:
+        radial-gradient(circle at 30% 24%, rgba(255,255,255,0.55), rgba(255,255,255,0) 46%),
+        radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+      animation-delay: 0s;
+    }
+    /* Facebook — smaller, nested close below-right, overlapping a touch. */
+    .float-social.fb {
+      width: 26px; height: 26px;
+      top: 26px; left: 24px;
+      z-index: 2;
+      background:
+        radial-gradient(circle at 30% 24%, rgba(255,255,255,0.5), rgba(255,255,255,0) 46%),
+        linear-gradient(160deg, #1877F2, #0C5DC7);
+      animation-delay: 1.3s;
+    }
+    @keyframes bubbleDrift {
+      0%,100% { transform: translate(0,0); }
+      30%     { transform: translate(2px,-3px); }
+      65%     { transform: translate(-2px,2px); }
+    }
+    /* Expanded: both same size (44px), centred, stacked in a tidy column.
+       Drift animation is REMOVED (not just paused) so its transform resets
+       to translate(0,0) — otherwise a frozen mid-drift offset would leave
+       the two icons a few px misaligned in the column. */
+    .float-social-bubble.is-open .float-social,
+    .float-social-bubble:hover .float-social {
+      animation: none;
+      width: 44px; height: 44px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    }
+    .float-social-bubble.is-open .float-social.ig,
+    .float-social-bubble:hover .float-social.ig { top: 0;    left: 6px; }
+    .float-social-bubble.is-open .float-social.fb,
+    .float-social-bubble:hover .float-social.fb { top: 48px; left: 6px; }
+    .float-social:focus-visible { outline: 2px solid var(--silver); outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      .float-social { animation: none; }
+    }
+
     .float-call {
       position: fixed;
       bottom: calc(28px + env(safe-area-inset-bottom));
@@ -2506,7 +2616,17 @@
           <p class="form-section-title" style="margin-top:24px;">Transfer Details</p>
           <div class="form-grid">
             <div class="form-group full">
-              <label class="form-label" for="bw_orig_sp">Pickup Address <span style="color:var(--error)">*</span></label>
+              <label class="form-label">Direction <span style="color:var(--error)">*</span></label>
+              <div class="direction-toggle">
+                <button class="direction-btn active" data-dir="to">To Port</button>
+                <button class="direction-btn" data-dir="from">From Port</button>
+              </div>
+            </div>
+            <div class="form-group full">
+              <label class="form-label" for="bw_orig_sp">
+                <span id="seaport-addr-label">Pickup Address</span>
+                <span style="color:var(--error)"> *</span>
+              </label>
               <input type="search" id="bw_orig_sp" class="form-control" placeholder="Enter Florida address" autocomplete="off" autocorrect="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"/>
               <span class="form-error" id="bw_orig_sp-err"></span>
             </div>
@@ -3085,6 +3205,14 @@
       </div>
       <p class="footer-tagline">Premium luxury black SUV service in Miami and South Florida. Professional and always first-class.</p>
       <div class="footer-social">
+        <!-- Instagram -->
+        <a href="https://www.instagram.com/blackwavemiami/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.982c2.937 0 3.285.011 4.445.064 1.073.049 1.655.228 2.043.379.514.2.88.437 1.265.822.386.386.622.751.822 1.265.151.388.33.97.379 2.043.053 1.16.064 1.508.064 4.445s-.011 3.285-.064 4.445c-.049 1.073-.228 1.655-.379 2.043a3.41 3.41 0 01-.822 1.265c-.386.386-.751.622-1.265.822-.388.151-.97.33-2.043.379-1.16.053-1.508.064-4.445.064s-3.285-.011-4.445-.064c-1.073-.049-1.655-.228-2.043-.379a3.41 3.41 0 01-1.265-.822 3.41 3.41 0 01-.822-1.265c-.151-.388-.33-.97-.379-2.043-.053-1.16-.064-1.508-.064-4.445s.011-3.285.064-4.445c.049-1.073.228-1.655.379-2.043.2-.514.437-.88.822-1.265.386-.386.751-.622 1.265-.822.388-.151.97-.33 2.043-.379 1.16-.053 1.508-.064 4.445-.064M12 1c-2.987 0-3.362.013-4.535.066-1.171.054-1.97.24-2.67.51a5.394 5.394 0 00-1.949 1.27 5.394 5.394 0 00-1.269 1.948c-.27.7-.457 1.499-.51 2.67C1.013 8.638 1 9.013 1 12s.013 3.362.066 4.535c.054 1.171.24 1.97.51 2.67a5.395 5.395 0 001.27 1.949 5.394 5.394 0 001.948 1.269c.7.27 1.499.457 2.67.51C8.638 22.987 9.013 23 12 23s3.362-.013 4.535-.066c1.171-.054 1.97-.24 2.67-.51a5.395 5.395 0 001.949-1.27 5.395 5.395 0 001.269-1.948c.27-.7.457-1.499.51-2.67.053-1.173.066-1.548.066-4.535s-.013-3.362-.066-4.535c-.054-1.171-.24-1.97-.51-2.67a5.395 5.395 0 00-1.27-1.949 5.394 5.394 0 00-1.948-1.269c-.7-.27-1.499-.457-2.67-.51C15.362 1.013 14.987 1 12 1zm0 5.351A5.649 5.649 0 106.351 12 5.649 5.649 0 0012 6.351zm0 9.32A3.671 3.671 0 1115.671 12 3.671 3.671 0 0112 15.671zm5.884-9.542a1.32 1.32 0 11-1.32-1.32 1.32 1.32 0 011.32 1.32z"/></svg>
+        </a>
+        <!-- Facebook -->
+        <a href="https://www.facebook.com/people/BlackWave-Miami-Transportation-Corp/61588860662507/" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 10-11.5 9.87v-6.98H7.98V12h2.52V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.98A10 10 0 0022 12z"/></svg>
+        </a>
         <!-- WhatsApp -->
         <a href="https://wa.me/17867542078" target="_blank" rel="noopener" aria-label="WhatsApp">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -3150,6 +3278,15 @@
 <!-- ═══════════════════════════════════════════════════════
      FLOATING BUTTONS
 ═══════════════════════════════════════════════════════ -->
+<div class="float-social-bubble" aria-label="Follow us">
+  <a class="float-social ig" href="https://www.instagram.com/blackwavemiami/" target="_blank" rel="noopener" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.982c2.937 0 3.285.011 4.445.064 1.073.049 1.655.228 2.043.379.514.2.88.437 1.265.822.386.386.622.751.822 1.265.151.388.33.97.379 2.043.053 1.16.064 1.508.064 4.445s-.011 3.285-.064 4.445c-.049 1.073-.228 1.655-.379 2.043a3.41 3.41 0 01-.822 1.265c-.386.386-.751.622-1.265.822-.388.151-.97.33-2.043.379-1.16.053-1.508.064-4.445.064s-3.285-.011-4.445-.064c-1.073-.049-1.655-.228-2.043-.379a3.41 3.41 0 01-1.265-.822 3.41 3.41 0 01-.822-1.265c-.151-.388-.33-.97-.379-2.043-.053-1.16-.064-1.508-.064-4.445s.011-3.285.064-4.445c.049-1.073.228-1.655.379-2.043.2-.514.437-.88.822-1.265.386-.386.751-.622 1.265-.822.388-.151.97-.33 2.043-.379 1.16-.053 1.508-.064 4.445-.064M12 1c-2.987 0-3.362.013-4.535.066-1.171.054-1.97.24-2.67.51a5.394 5.394 0 00-1.949 1.27 5.394 5.394 0 00-1.269 1.948c-.27.7-.457 1.499-.51 2.67C1.013 8.638 1 9.013 1 12s.013 3.362.066 4.535c.054 1.171.24 1.97.51 2.67a5.395 5.395 0 001.27 1.949 5.394 5.394 0 001.948 1.269c.7.27 1.499.457 2.67.51C8.638 22.987 9.013 23 12 23s3.362-.013 4.535-.066c1.171-.054 1.97-.24 2.67-.51a5.395 5.395 0 001.949-1.27 5.395 5.395 0 001.269-1.948c.27-.7.457-1.499.51-2.67.053-1.173.066-1.548.066-4.535s-.013-3.362-.066-4.535c-.054-1.171-.24-1.97-.51-2.67a5.395 5.395 0 00-1.27-1.949 5.394 5.394 0 00-1.948-1.269c-.7-.27-1.499-.457-2.67-.51C15.362 1.013 14.987 1 12 1zm0 5.351A5.649 5.649 0 106.351 12 5.649 5.649 0 0012 6.351zm0 9.32A3.671 3.671 0 1115.671 12 3.671 3.671 0 0112 15.671zm5.884-9.542a1.32 1.32 0 11-1.32-1.32 1.32 1.32 0 011.32 1.32z"/></svg>
+  </a>
+  <a class="float-social fb" href="https://www.facebook.com/people/BlackWave-Miami-Transportation-Corp/61588860662507/" target="_blank" rel="noopener" aria-label="Facebook">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 10-11.5 9.87v-6.98H7.98V12h2.52V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.98A10 10 0 0022 12z"/></svg>
+  </a>
+</div>
+<span class="wa-ring"></span>
 <a class="float-whatsapp" href="https://wa.me/17867542078" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
   <span class="tooltip">Chat with us on WhatsApp</span>
@@ -3222,12 +3359,101 @@ const PORT_COORDS = {
   miami:{lat:25.7741,lng:-80.1699}, everglades:{lat:26.0999,lng:-80.1148}
 };
 
+/* ── Origin fee — 15% surcharge when a trip's PICKUP point is an
+   airport or seaport (industry-standard ground-transportation trip fee) ── */
+const EMAILJS_SVC = 'service_ywxboii';
+const EMAILJS_TPL = 'template_62evkld';
+const ORIGIN_FEE_RATE  = 0.15;
+const AIRPORT_LABELS = {
+  MIA:'Miami International Airport (MIA)',
+  MIA_SIG:'MIA Signature Flight Support',
+  OPF:'Opa-locka Executive Airport (OPF)',
+  FLL:"Fort Lauderdale-Hollywood Int'l (FLL)",
+  PBI:'Palm Beach International (PBI)'
+};
+const PORT_LABELS = {
+  miami:'Port of Miami (PortMiami)',
+  everglades:'Port Everglades (Fort Lauderdale)'
+};
+
+function haversineMiles(a,b){
+  const R=3958.8, toRad=d=>d*Math.PI/180;
+  const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+  const s=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));
+}
+
+/* Detects whether a Google Place sits on a known airport/seaport campus —
+   used when a customer manually types an airport/port as their pickup
+   address in a P2P, Round Trip or Hourly booking (not the dedicated
+   Airport/Seaport forms, which already know their own airport/port). */
+function detectAirportOrPort(place){
+  if(!place||!place.geometry||!place.geometry.location) return null;
+  const loc=place.geometry.location;
+  const pt={lat:typeof loc.lat==='function'?loc.lat():loc.lat, lng:typeof loc.lng==='function'?loc.lng():loc.lng};
+  for(const key in AIRPORT_COORDS){
+    if(haversineMiles(pt,AIRPORT_COORDS[key])<=1.2) return {type:'airport',label:AIRPORT_LABELS[key]||key};
+  }
+  for(const key in PORT_COORDS){
+    if(haversineMiles(pt,PORT_COORDS[key])<=1.2) return {type:'port',label:PORT_LABELS[key]||key};
+  }
+  return null;
+}
+
+/* Appends the fee row and returns the new total when a pickup fee applies */
+function applyOriginFee(total,rows,feeInfo){
+  if(!feeInfo) return {total,rows};
+  const fee=Math.round(total*ORIGIN_FEE_RATE*100)/100;
+  const newTotal=Math.round((total+fee)*100)/100;
+  const label=feeInfo.type==='airport'?'Airport Fee (15%)':'Port Fee (15%)';
+  rows.push({l:label,v:fmt(fee)});
+  return {total:newTotal,rows};
+}
+
+/* ── Stadium traffic notice — no price change, just a heads-up that
+   trips to/from these venues can shift on event days ── */
+const STADIUM_COORDS = {
+  hardrock:  {lat:25.9581,lng:-80.2389},   // Hard Rock Stadium, 347 Don Shula Dr, Miami Gardens
+  nu:        {lat:25.7931,lng:-80.2590},   // Nu Stadium at Miami Freedom Park, 1802 NW 37th Ave, Miami
+  loandepot: {lat:25.7783,lng:-80.2204},   // LoanDepot Park, 501 Marlins Way, Miami
+  kaseya:    {lat:25.7814,lng:-80.1883}    // Kaseya Center, 601 Biscayne Blvd, Miami
+};
+const STADIUM_LABELS = {
+  hardrock:'Hard Rock Stadium',
+  nu:'Nu Stadium at Miami Freedom Park',
+  loandepot:'LoanDepot Park',
+  kaseya:'Kaseya Center'
+};
+const STADIUM_NOTICE_RADIUS_MI = 1.0;
+const STADIUM_NOTICE = 'Trips to or from major stadiums are subject to fare adjustments due to event-day traffic and venue congestion. Your driver will confirm any change in price before pickup.';
+
+/* Checks a single place; returns the matching stadium label or null */
+function matchStadium(place){
+  if(!place||!place.geometry||!place.geometry.location) return null;
+  const loc=place.geometry.location;
+  const pt={lat:typeof loc.lat==='function'?loc.lat():loc.lat, lng:typeof loc.lng==='function'?loc.lng():loc.lng};
+  for(const key in STADIUM_COORDS){
+    if(haversineMiles(pt,STADIUM_COORDS[key])<=STADIUM_NOTICE_RADIUS_MI) return STADIUM_LABELS[key];
+  }
+  return null;
+}
+
+/* Checks any number of places (pickup and/or dropoff) — trips count
+   whether the stadium is the origin or the destination */
+function detectStadium(...places){
+  for(const p of places){
+    const label=matchStadium(p);
+    if(label) return label;
+  }
+  return null;
+}
+
 let dms=null, mapsReady=false, squarePayments=null, squareCard=null;
 const autocompletes={}, commonFieldsSetup={};
 const bState={tripType:null,total:0,deposit:0,pickupPlace:null,dropoffPlace:null,
-  pickupZip:'',hours:0,airport:'',seaport:'',fisherDest:'',airportDirection:'to',surchargeReason:'',
+  pickupZip:'',hours:0,airport:'',seaport:'',fisherDest:'',airportDirection:'to',seaportDirection:'to',surchargeReason:'',
   rtPickupPlace:null,rtDropoffPlace:null,
-  estimatedMins:30,pickupAddress:'',dropoffAddress:''};
+  estimatedMins:30,pickupAddress:'',dropoffAddress:'',stadiumNotice:''};
 
 /* Funciones utilitarias — scope global para que initMaps las use */
 function isFL(place){
@@ -3251,12 +3477,12 @@ function isPeak(date,time){
 }
 function isEarly(time){if(!time)return false;const[h]=time.split(':').map(Number);return h>=3&&h<7;}
 function isWeekend(date){if(!date)return false;const d=new Date(date+'T00:00:00');return d.getDay()===0||d.getDay()===6;}
-function calcP2P(miles,mins,date,time){
+function calcP2P(miles,mins,date,time,base=10){
   let fare,surge=false,reason='';
   if(miles<=90){
-    fare=10+miles*4+mins*1;
+    fare=base+miles*4+mins*1;
     if(isPeak(date,time)){fare*=1.2;surge=true;reason='Peak hours surcharge (Mon–Fri 2:00–6:50 PM) ×1.2 applied.';}
-  }else{fare=10+miles*3.5+mins*0.8;}
+  }else{fare=base+miles*3.5+mins*0.8;}
   return{fare:Math.round(fare*100)/100,surge,reason};
 }
 
@@ -3403,7 +3629,7 @@ function setupAllACs(){
   if(!window.google||!google.maps||!google.maps.places)return;
   setupAC('bw_orig_01',      function(p){bState.pickupPlace=p; if(window._recalcP2P)window._recalcP2P();});
   setupAC('bw_dest_02',     function(p){bState.dropoffPlace=p; if(window._recalcP2P)window._recalcP2P();});
-  setupAC('bw_orig_hr',   function(p){bState.pickupPlace=p;});
+  setupAC('bw_orig_hr',   function(p){bState.pickupPlace=p; if(window._recalcHourly)window._recalcHourly();});
   setupAC('bw_orig_ap', function(p){bState.pickupPlace=p; if(window._recalcAirport)window._recalcAirport();});
   setupAC('bw_orig_sp',  function(p){bState.pickupPlace=p; if(window._recalcSeaport)window._recalcSeaport();});
   setupAC('bw_wpt_01',       function(p){bState.rtPickupPlace=p; if(window._recalcRoundTrip)window._recalcRoundTrip();});
@@ -3444,6 +3670,25 @@ window._mapsLoadError=function(){
 
 document.addEventListener('DOMContentLoaded',()=>{
 
+  /* ── Social bubble: on touch devices (no hover) the first tap expands
+     the icons into the tidy column; a second tap on an icon opens it.
+     On desktop, CSS :hover already handles it, so links click normally. ── */
+  (function(){
+    const bubble=document.querySelector('.float-social-bubble');
+    if(!bubble)return;
+    const canHover=window.matchMedia('(hover: hover)').matches;
+    if(canHover)return;
+    bubble.addEventListener('click',e=>{
+      if(!bubble.classList.contains('is-open')){
+        e.preventDefault();
+        bubble.classList.add('is-open');
+      }
+    });
+    document.addEventListener('click',e=>{
+      if(!bubble.contains(e.target)) bubble.classList.remove('is-open');
+    },{passive:true});
+  })();
+
   /* ── Smooth scroll para todos los elementos data-scroll ── */
   function doScroll(id){
     const target=document.getElementById(id);
@@ -3455,6 +3700,50 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 
   if(window.emailjs) emailjs.init('jm6veKiFPBM1g1jAF');
+
+  /* ── Return from Square payment ────────────────────────────
+     Square redirects here with ?bw_booking=<id> after a successful
+     charge. Look the booking up in localStorage (saved right before
+     we sent the customer to Square), show the success screen, and
+     fire the confirmation email exactly once per booking. */
+  (function handleBookingReturn(){
+    const bookingId=new URLSearchParams(location.search).get('bw_booking');
+    if(!bookingId)return;
+
+    let booking=null;
+    try{
+      const saved=JSON.parse(localStorage.getItem('blackwave_bookings')||'[]');
+      booking=saved.find(b=>b.id===bookingId)||null;
+    }catch(_){}
+
+    document.getElementById('paymentModal')?.classList.add('open');
+    document.getElementById('paymentModalContent')?.classList.add('hidden');
+    document.getElementById('successScreen')?.classList.remove('hidden');
+    document.body.style.overflow='hidden';
+
+    const detailsEl=document.getElementById('successDetails');
+    if(booking&&detailsEl){
+      const tl={p2p:'Point-to-Point',hourly:'Hourly Service',airport:'Airport Transfer',seaport:'Seaport Transfer',fisher:'Fisher Island Transfer',roundtrip:'Round Trip'};
+      detailsEl.innerHTML=`
+        <div class="success-detail-row"><span class="k">Booking ID</span><span class="v">${esc(booking.id)}</span></div>
+        <div class="success-detail-row"><span class="k">Trip</span><span class="v">${esc(tl[booking.tripType]||booking.tripType)}</span></div>
+        <div class="success-detail-row"><span class="k">Date</span><span class="v">${esc(booking.date)} at ${esc(booking.time)}</span></div>
+        <div class="success-detail-row"><span class="k">Deposit Paid</span><span class="v">${fmt(booking.deposit)}</span></div>
+        <div class="success-detail-row"><span class="k">Balance Due</span><span class="v">${fmt(booking.total-booking.deposit)}</span></div>
+        ${booking.stadiumNotice?`<div class="stadium-notice" style="margin-top:12px;">🏟️ ${esc(booking.stadiumNotice)}</div>`:''}
+      `;
+      const sentKey='blackwave_confirmed_'+bookingId;
+      if(!localStorage.getItem(sentKey)){
+        try{ sendEmail(booking); }catch(_){}
+        localStorage.setItem(sentKey,'1');
+      }
+    }else if(detailsEl){
+      detailsEl.innerHTML=`<p style="text-align:center;color:var(--text-secondary);font-size:.85rem;">Booking ID: ${esc(bookingId)}</p>`;
+    }
+
+    // Clean the URL so refreshing the page doesn't replay this
+    history.replaceState({},'',location.pathname+location.hash);
+  })();
 
   if(!mapsReady) setMapsStatus('loading','⏳ Cargando Google Maps...');
   setTimeout(()=>{ if(!mapsReady) setMapsStatus('error','✗ Google Maps no cargó — verifica API key y billing en Google Cloud'); },9000);
@@ -3909,6 +4198,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     let h=rows.map(r=>`<div class="price-row"><span class="label">${r.l}</span><span class="val">${r.v}</span></div>`).join('');
     h+=`<div class="price-divider"></div>`;
     if(note)h+=`<div class="surcharge-note">${note}</div>`;
+    if(bState.stadiumNotice)h+=`<div class="stadium-notice">🏟️ ${esc(bState.stadiumNotice)}</div>`;
     h+=`<div class="price-total"><span class="label">Total</span><span class="val">${fmt(total)}</span></div>
     <div class="deposit-box">
       <div class="deposit-label">Deposit Due Today (30%)</div>
@@ -3922,7 +4212,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   function clearPrice(){
     document.getElementById('priceContent').innerHTML=`<div class="price-empty"><div class="price-skeleton"><div class="skel-row"><div class="skel-bar w60"></div><div class="skel-bar w25"></div></div><div class="skel-row"><div class="skel-bar w45"></div><div class="skel-bar w30"></div></div><div class="skel-row"><div class="skel-bar w70"></div><div class="skel-bar w20"></div></div><div class="skel-divider"></div><div class="skel-row"><div class="skel-bar w30"></div><div class="skel-bar tall"></div></div></div><p class="skel-hint">Fill in your route to calculate</p></div>`;
     document.getElementById('pay-btn-wrapper').classList.add('hidden');
-    bState.total=0;bState.deposit=0;
+    bState.total=0;bState.deposit=0;bState.stadiumNotice='';
   }
 
   function withDMS(origin,dest,cb){
@@ -3948,13 +4238,17 @@ document.addEventListener('DOMContentLoaded',()=>{
       bState.pickupAddress=placeLabel(pu)||'';
       bState.dropoffAddress=placeLabel(dr)||'';
       const{fare,surge,reason}=calcP2P(miles,mins,date,time);
-      renderPrice([
+      let rows=[
         {l:'Base Fare',v:'$10.00'},
         {l:'Distance',v:`${dt} × $${miles<=90?'4.00':'3.50'}/mi`},
         {l:'Time',v:`${dur} × $${miles<=90?'1.00':'0.80'}/min`},
         ...(surge?[{l:'Peak Surcharge',v:'×1.2'}]:[]),
         {l:'Route',v:`${dt} · ${dur}`}
-      ],fare,surge?reason:'');
+      ];
+      const feeInfo=detectAirportOrPort(pu);
+      const{total,rows:finalRows}=applyOriginFee(fare,rows,feeInfo);
+      bState.stadiumNotice=detectStadium(pu,dr)?STADIUM_NOTICE:'';
+      renderPrice(finalRows,total,surge?reason:'');
     });
   }
 
@@ -3973,17 +4267,28 @@ document.addEventListener('DOMContentLoaded',()=>{
       const tRate=miles<=90?1:0.8;
       const{fare:fare1,surge:surge1,reason:reason1}=calcP2P(miles,mins,date1,time1);
       const{fare:fare2,surge:surge2,reason:reason2}=calcP2P(miles,mins,date2,time2);
-      const total=Math.round((fare1+fare2)*100)/100;
       const notes=[surge1?reason1:'',surge2?reason2:''].filter(Boolean).join(' ');
+
+      /* Outbound starts at pu; the return leg starts back at dr —
+         each leg gets its own 15% fee check for its own pickup point. */
+      const feeOut=detectAirportOrPort(pu);
+      const feeRet=detectAirportOrPort(dr);
+      const{total:outboundTotal,rows:outboundFeeRows}=applyOriginFee(fare1,[],feeOut);
+      const{total:returnTotal,rows:returnFeeRows}=applyOriginFee(fare2,[],feeRet);
+      const total=Math.round((outboundTotal+returnTotal)*100)/100;
+      bState.stadiumNotice=detectStadium(pu,dr)?STADIUM_NOTICE:'';
+
       renderPrice([
         {l:'Route',v:`${dt} · ${dur}`},
         {l:'Base Rate',v:`$${rate.toFixed(2)}/mi + $${tRate.toFixed(2)}/min`},
         {l:'Outbound (A→B)',v:''},
         ...(surge1?[{l:'Outbound Peak Surcharge',v:'×1.2'}]:[]),
-        {l:'Outbound Fare',v:fmt(fare1)},
+        ...outboundFeeRows.map(r=>({l:'Outbound '+r.l,v:r.v})),
+        {l:'Outbound Fare',v:fmt(outboundTotal)},
         {l:'Return (B→A)',v:''},
         ...(surge2?[{l:'Return Peak Surcharge',v:'×1.2'}]:[]),
-        {l:'Return Fare',v:fmt(fare2)},
+        ...returnFeeRows.map(r=>({l:'Return '+r.l,v:r.v})),
+        {l:'Return Fare',v:fmt(returnTotal)},
       ],total,notes);
     });
   }
@@ -3997,31 +4302,50 @@ document.addEventListener('DOMContentLoaded',()=>{
     const zip=getZip(place);
     bState.pickupZip=zip;
 
-    bState.pickupAddress=placeLabel(place)||'';
-    bState.dropoffAddress=ap||'';
+    const fromAirport=bState.airportDirection==='from';
+    const airportLabel=AIRPORT_LABELS[ap]||ap;
+
+    /* Direction determines which end of the trip is the pickup —
+       matters both for the driver's booking sheet and for the 15%
+       Airport Fee, which only applies when picking up AT the airport. */
+    if(fromAirport){
+      bState.pickupAddress=airportLabel;
+      bState.dropoffAddress=placeLabel(place)||'';
+    }else{
+      bState.pickupAddress=placeLabel(place)||'';
+      bState.dropoffAddress=airportLabel;
+    }
+
+    const routeLabel=name=>fromAirport?`${name} → Miami Beach`:`Miami Beach → ${name}`;
+    bState.stadiumNotice=detectStadium(place)?STADIUM_NOTICE:'';
+    function finish(rows,total,note){
+      if(fromAirport)({total,rows}=applyOriginFee(total,rows,{type:'airport'}));
+      renderPrice(rows,total,note);
+    }
+
     if(MIAMI_BEACH_ZIPS.includes(zip)){
       if(ap==='MIA'){
         bState.estimatedMins=25;
         let base=75;const early=isEarly(time),peak=isPeak(date,time);
         let note='';
         if(early||peak){base=Math.round(base*1.2*100)/100;note=early?'Early morning surcharge (3:00–6:59 AM) ×1.2 applied.':'Peak hours surcharge (Mon–Fri 2:00–6:50 PM) ×1.2 applied.';}
-        renderPrice([{l:'Miami Beach → MIA',v:early||peak?`$75.00 × 1.2`:'$75.00 (fixed)'},...(early||peak?[{l:'Surcharge',v:'×1.2'}]:[])],base,note);
-      }else if(ap==='MIA_SIG'){bState.estimatedMins=25;renderPrice([{l:'Miami Beach → MIA Signature',v:'$90.00 (fixed)'}],90,'');}
-      else if(ap==='OPF'){bState.estimatedMins=40;renderPrice([{l:'Miami Beach → OPF Opa-locka',v:'$120.00 (fixed)'}],120,'');}
-      else if(ap==='FLL'){bState.estimatedMins=55;renderPrice([{l:'Miami Beach → FLL',v:'$150.00 (fixed)'}],150,'');}
+        finish([{l:routeLabel('MIA'),v:early||peak?'$75.00 × 1.2':'$75.00 (fixed)'},...(early||peak?[{l:'Surcharge',v:'×1.2'}]:[])],base,note);
+      }else if(ap==='MIA_SIG'){bState.estimatedMins=25;finish([{l:routeLabel('MIA Signature'),v:'$90.00 (fixed)'}],90,'');}
+      else if(ap==='OPF'){bState.estimatedMins=40;finish([{l:routeLabel('OPF Opa-locka'),v:'$120.00 (fixed)'}],120,'');}
+      else if(ap==='FLL'){bState.estimatedMins=55;finish([{l:routeLabel('FLL'),v:'$150.00 (fixed)'}],150,'');}
       else if(ap==='PBI'){
         withDMS(place.geometry.location,AIRPORT_COORDS.PBI,(miles,mins,dt,dur)=>{
           bState.estimatedMins=Math.ceil(mins);
-          const{fare,surge,reason}=calcP2P(miles,mins,date,time);
-          renderPrice([{l:'Miami Beach → PBI',v:dt},{l:'Est. Drive',v:dur},...(surge?[{l:'Peak Surcharge',v:'×1.2'}]:[])],fare,surge?reason:'');
+          const{fare,surge,reason}=calcP2P(miles,mins,date,time,fromAirport?0:10);
+          finish([{l:routeLabel('PBI'),v:dt},{l:'Est. Drive',v:dur},...(surge?[{l:'Peak Surcharge',v:'×1.2'}]:[])],fare,surge?reason:'');
         });
       }
     }else{
       const dest=AIRPORT_COORDS[ap];if(!dest)return;
       withDMS(place.geometry.location,dest,(miles,mins,dt,dur)=>{
         bState.estimatedMins=Math.ceil(mins);
-        const{fare,surge,reason}=calcP2P(miles,mins,date,time);
-        renderPrice([{l:'Distance',v:dt},{l:'Est. Drive',v:dur},{l:'Base Fare',v:'$10.00'},...(surge?[{l:'Peak Surcharge',v:'×1.2'}]:[])],fare,surge?reason:'');
+        const{fare,surge,reason}=calcP2P(miles,mins,date,time,fromAirport?0:10);
+        finish([{l:'Distance',v:dt},{l:'Est. Drive',v:dur},...(fromAirport?[]:[{l:'Base Fare',v:'$10.00'}]),...(surge?[{l:'Peak Surcharge',v:'×1.2'}]:[])],fare,surge?reason:'');
       });
     }
   }
@@ -4034,10 +4358,25 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(!place||!port){clearPrice();return;}
     const zip=getZip(place);
 
-    if(port==='everglades'){
+    const fromPort=bState.seaportDirection==='from';
+    const portLabel=PORT_LABELS[port]||port;
+
+    if(fromPort){
+      bState.pickupAddress=portLabel;
+      bState.dropoffAddress=placeLabel(place)||'';
+    }else{
       bState.pickupAddress=placeLabel(place)||'';
-      bState.dropoffAddress='Port Everglades, Fort Lauderdale, FL';
-      renderPrice([{l:'Any Florida Address → Port Everglades',v:'$160.00 (fixed)'}],160,'');
+      bState.dropoffAddress=portLabel;
+    }
+
+    bState.stadiumNotice=detectStadium(place)?STADIUM_NOTICE:'';
+    function finish(rows,total,note){
+      if(fromPort)({total,rows}=applyOriginFee(total,rows,{type:'port'}));
+      renderPrice(rows,total,note);
+    }
+
+    if(port==='everglades'){
+      finish([{l:'From',v:fromPort?'Port Everglades':'Any Florida Address'},{l:'To',v:fromPort?'Any Florida Address':'Port Everglades'},{l:'Fixed Fare',v:'$160.00'}],160,'');
       return;
     }
 
@@ -4048,19 +4387,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     const cruiseHr=h*60+m>=600&&h*60+m<=750;
     const cruiseSurge=wknd&&cruiseHr;
 
-    bState.pickupAddress=placeLabel(place)||'';
-    bState.dropoffAddress='Port of Miami (PortMiami), Miami, FL';
-
     if(isMB){
       const total=cruiseSurge?100:65;
-      renderPrice([{l:'From',v:'Miami Beach'},{l:'To',v:'Port of Miami'},{l:cruiseSurge?'Weekend cruise rate':'Standard rate',v:fmt(total)}],total,cruiseSurge?'Weekend cruise hours (Sat/Sun 10:00 AM–12:30 PM) rate applied.':'');
+      finish([{l:'From',v:fromPort?'Port of Miami':'Miami Beach'},{l:'To',v:fromPort?'Miami Beach':'Port of Miami'},{l:cruiseSurge?'Weekend cruise rate':'Standard rate',v:fmt(total)}],total,cruiseSurge?'Weekend cruise hours (Sat/Sun 10:00 AM–12:30 PM) rate applied.':'');
     }else if(isDT){
       const total=cruiseSurge?70:50;
-      renderPrice([{l:'From',v:'Downtown / Brickell'},{l:'To',v:'Port of Miami'},{l:cruiseSurge?'Weekend cruise rate':'Standard rate',v:fmt(total)}],total,cruiseSurge?'Weekend cruise hours (Sat/Sun 10:00 AM–12:30 PM) rate applied.':'');
+      finish([{l:'From',v:fromPort?'Port of Miami':'Downtown / Brickell'},{l:'To',v:fromPort?'Downtown / Brickell':'Port of Miami'},{l:cruiseSurge?'Weekend cruise rate':'Standard rate',v:fmt(total)}],total,cruiseSurge?'Weekend cruise hours (Sat/Sun 10:00 AM–12:30 PM) rate applied.':'');
     }else{
       withDMS(place.geometry.location,PORT_COORDS.miami,(miles,mins,dt,dur)=>{
         const{fare,surge,reason}=calcP2P(miles,mins,date,time);
-        renderPrice([{l:'Distance',v:dt},{l:'Est. Drive',v:dur},...(surge?[{l:'Peak Surcharge',v:'×1.2'}]:[])],fare,surge?reason:'');
+        finish([{l:'Distance',v:dt},{l:'Est. Drive',v:dur},...(surge?[{l:'Peak Surcharge',v:'×1.2'}]:[])],fare,surge?reason:'');
       });
     }
   }
@@ -4072,8 +4408,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     bState.estimatedMins=hrs*60;
     if(bState.pickupPlace) bState.pickupAddress=placeLabel(bState.pickupPlace)||'';
     bState.dropoffAddress='';
-    const total=hrs*90;
-    renderPrice([{l:'Rate',v:'$90 / hour'},{l:'Hours',v:hrs+(hrs===6?'+':'')},{l:'Subtotal',v:fmt(total)}],total,'');
+    let rows=[{l:'Rate',v:'$90 / hour'},{l:'Hours',v:hrs+(hrs===6?'+':'')}];
+    const feeInfo=detectAirportOrPort(bState.pickupPlace);
+    let{total,rows:finalRows}=applyOriginFee(hrs*90,rows,feeInfo);
+    finalRows.push({l:'Subtotal',v:fmt(total)});
+    bState.stadiumNotice=detectStadium(bState.pickupPlace)?STADIUM_NOTICE:'';
+    renderPrice(finalRows,total,'');
   }
 
   function recalcFisher(){
@@ -4105,6 +4445,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   window._recalcAirport    = function(){ recalcAirport(); };
   window._recalcSeaport    = function(){ recalcSeaport(); };
   window._recalcRoundTrip  = function(){ recalcRoundTrip(); };
+  window._recalcHourly     = function(){ recalcHourly(); };
 
   /* Si Maps ya cargó antes de DOMContentLoaded, lanzar autocompletes ahora */
   if(mapsReady) setupAllACs();
@@ -4125,17 +4466,29 @@ document.addEventListener('DOMContentLoaded',()=>{
       setupAllACs();
 
       if(type==='airport'){
-        document.querySelectorAll('.direction-btn').forEach(btn=>{
+        document.querySelectorAll('#form-airport .direction-btn').forEach(btn=>{
           btn.onclick=()=>{
-            document.querySelectorAll('.direction-btn').forEach(b=>b.classList.remove('active'));
+            document.querySelectorAll('#form-airport .direction-btn').forEach(b=>b.classList.remove('active'));
             btn.classList.add('active');
             bState.airportDirection=btn.dataset.dir;
             document.getElementById('airport-addr-label').textContent=btn.dataset.dir==='to'?'Pickup Address':'Destination Address';
+            recalcAirport();
           };
         });
         document.getElementById('airport-select').onchange=()=>recalcAirport();
       }
-      if(type==='seaport')document.getElementById('seaport-select').onchange=()=>recalcSeaport();
+      if(type==='seaport'){
+        document.querySelectorAll('#form-seaport .direction-btn').forEach(btn=>{
+          btn.onclick=()=>{
+            document.querySelectorAll('#form-seaport .direction-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            bState.seaportDirection=btn.dataset.dir;
+            document.getElementById('seaport-addr-label').textContent=btn.dataset.dir==='to'?'Pickup Address':'Destination Address';
+            recalcSeaport();
+          };
+        });
+        document.getElementById('seaport-select').onchange=()=>recalcSeaport();
+      }
       if(type==='hourly')document.getElementById('hourly-hours').onchange=()=>recalcHourly();
       if(type==='fisher')document.getElementById('fisher-dest').onchange=()=>recalcFisher();
       if(type==='roundtrip'){
@@ -4283,6 +4636,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         dropoffAddress:bState.dropoffAddress||'',
         returnDate:d.returnDate||'',
         returnTime:d.returnTime||'',
+        stadiumNotice:bState.stadiumNotice||'',
         status:'pending',createdAt:new Date().toISOString()
       };
 
@@ -4305,18 +4659,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     openSquarePayment();
   });
 
-  const EMAILJS_SVC  = 'service_ywxboii';
-  const EMAILJS_TPL  = 'template_62evkld';
-
   function sendEmail(b){
-    if(!window.emailjs)return;
-    emailjs.send(EMAILJS_SVC,EMAILJS_TPL,{
+    if(!window.emailjs)return Promise.resolve();
+    return emailjs.send(EMAILJS_SVC,EMAILJS_TPL,{
       to_email:b.email,to_name:b.name,booking_id:b.id,
       trip_type:b.tripType,date:b.date,time:b.time,
       passengers:b.passengers,total:fmt(b.total),
       deposit:fmt(b.deposit),balance:fmt(b.total-b.deposit),
-      special:b.special||'None',phone:b.phone
-    });
+      special:b.special||'None',phone:b.phone,
+      stadium_notice:b.stadiumNotice||''
+    }).catch(err=>{ console.warn('[BlackWave] confirmation email failed:', err); });
   }
 
   function sendAdminWA(b){

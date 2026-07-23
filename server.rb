@@ -17,6 +17,7 @@ SQUARE_API_HOST     = 'connect.squareup.com'
 ADMIN_PASSWORD      = ENV['ADMIN_PASS'].to_s
 ICAL_TOKEN          = ENV['ICAL_TOKEN'].to_s
 BUFFER_MINS         = 20
+SITE_URL            = (ENV['SITE_URL'] || 'https://www.blackwavemt.com').chomp('/')
 
 # ── BOOKINGS FILE — validate path stays within app dir ────
 _bookings_raw = ENV['BOOKINGS_FILE'] || File.join(APP_ROOT, 'bookings.json')
@@ -171,7 +172,8 @@ class CheckoutServlet < WEBrick::HTTPServlet::AbstractServlet
       },
       checkout_options: {
         ask_for_shipping_address: false,
-        accepted_payment_methods: { apple_pay: true, google_pay: true, cash_app_pay: false }
+        accepted_payment_methods: { apple_pay: true, google_pay: true, cash_app_pay: false },
+        redirect_url: "#{SITE_URL}/index.html?bw_booking=#{URI.encode_www_form_component(booking_id)}"
       },
       pre_populated_data: { buyer_note: note },
       payment_note: "Booking #{booking_id}"
