@@ -25,3 +25,6 @@ cf_blackwave.log
 *.swo
 .idea/
 .vscode/
+
+# Backup local (no subir)
+_backup_pre_sync_*/

@@ -19,6 +19,8 @@ sleep 1
 
 # ── 2. Arrancar servidor Ruby ──────────────────────────────
 cd "$DIR"
+# Token solo para pruebas locales — production usa su propio ICAL_TOKEN en Railway
+export ICAL_TOKEN="${ICAL_TOKEN:-LocalDevOnly-$(date +%s)}"
 nohup bundle exec ruby server.rb >> server.log 2>&1 &
 SERVER_PID=$!
 sleep 2
@@ -50,7 +52,7 @@ done
 if [ -z "$URL" ]; then
   echo "    ⚠️  No se obtuvo URL del túnel — revisa /tmp/cf_blackwave.log"
 else
-  ICAL_URL="${URL}/api/bookings/calendar.ics?token=BlackWave2026"
+  ICAL_URL="${URL}/api/bookings/calendar.ics?token=${ICAL_TOKEN}"
   echo ""
   echo "    ════════════════════════════════════════════════"
   echo "    🌐 Sitio web   →  ${URL}/index.html"

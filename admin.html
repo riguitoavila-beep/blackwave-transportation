@@ -634,7 +634,7 @@
             </button>
           </div>
           <p style="font-size:0.72rem;color:var(--chrome);margin-top:10px;">
-            Token: <code style="color:var(--silver);">BlackWave2026</code> — keep this URL private.
+            Keep this URL private — it contains your calendar access token.
           </p>
         </div>
 
@@ -908,11 +908,20 @@ function switchView(name){
 }
 
 // ── SETTINGS & iCal SYNC ──────────────────────────────────
-function initSettings(){
+let _icalUrl = null;
+
+async function getIcalUrl(){
+  if(_icalUrl) return _icalUrl;
   const base = `${location.protocol}//${location.host}`;
-  const icalUrl = `${base}/api/bookings/calendar.ics?token=BlackWave2026`;
+  const { token } = await api('GET','/api/admin/ical-token');
+  _icalUrl = `${base}/api/bookings/calendar.ics?token=${encodeURIComponent(token)}`;
+  return _icalUrl;
+}
+
+function initSettings(){
   const display = document.getElementById('icalUrlDisplay');
-  if(display) display.textContent = icalUrl;
+  getIcalUrl().then(url=>{ if(display) display.textContent = url; })
+    .catch(()=>{ if(display) display.textContent = 'Unavailable — set ICAL_TOKEN on the server'; });
 
   // Server status check
   fetch('/api/health').then(r=>r.json()).then(d=>{
@@ -925,12 +934,12 @@ function initSettings(){
 }
 
 function copyIcalUrl(){
-  const base = `${location.protocol}//${location.host}`;
-  const url = `${base}/api/bookings/calendar.ics?token=BlackWave2026`;
-  navigator.clipboard?.writeText(url).then(()=>{
-    const btn = document.getElementById('copyIcalBtn');
-    if(btn){ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy URL',2000); }
-  }).catch(()=> alert(url));
+  getIcalUrl().then(url=>{
+    navigator.clipboard?.writeText(url).then(()=>{
+      const btn = document.getElementById('copyIcalBtn');
+      if(btn){ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy URL',2000); }
+    }).catch(()=> alert(url));
+  }).catch(e=> alert(e.message));
 }
 
 // ── OVERVIEW ──────────────────────────────────────────────

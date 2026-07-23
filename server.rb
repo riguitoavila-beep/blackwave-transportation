@@ -8,12 +8,14 @@ require 'date'
 APP_ROOT = File.expand_path(__dir__)
 
 # ── CONFIG ────────────────────────────────────────────────
-SQUARE_ACCESS_TOKEN = ENV['SQUARE_TOKEN']       || 'EAAAl9BK3APGEkUmkde-mPPH1NQBnQFslgkIl85n7b-MdAc1JXqh6_7HUQlsXVel'
-SQUARE_APP_ID       = ENV['SQUARE_APP_ID']      || 'sq0idp-uF_6ZCJ60TpW-fsgYb1EiQ'
+# All secrets MUST come from environment variables — never hardcode
+# real tokens/passwords here, this repo is public on GitHub.
+SQUARE_ACCESS_TOKEN = ENV['SQUARE_TOKEN'].to_s
+SQUARE_APP_ID       = ENV['SQUARE_APP_ID'].to_s
 SQUARE_LOCATION_ID  = ENV['SQUARE_LOCATION_ID'] || 'LYXVDKX4CDHCD'
 SQUARE_API_HOST     = 'connect.squareup.com'
-ADMIN_PASSWORD      = ENV['ADMIN_PASS'] || 'blackwave2026'
-ICAL_TOKEN          = ENV['ICAL_TOKEN']  || 'BlackWave2026'
+ADMIN_PASSWORD      = ENV['ADMIN_PASS'].to_s
+ICAL_TOKEN          = ENV['ICAL_TOKEN'].to_s
 BUFFER_MINS         = 20
 
 # ── BOOKINGS FILE — validate path stays within app dir ────
@@ -229,6 +231,7 @@ class APIServlet < WEBrick::HTTPServlet::AbstractServlet
     when ['GET',  '/api/availability']  then availability(req, res)
     when ['GET',  '/api/admin/stats']   then stats(req, res)
     when ['GET',  '/api/admin/revenue'] then revenue(req, res)
+    when ['GET',  '/api/admin/ical-token'] then ical_token(req, res)
     else
       if m == 'PATCH'  && path =~ %r{^/api/bookings/(.+)$} then update_booking(req, res, $1)
       elsif m == 'DELETE' && path =~ %r{^/api/bookings/(.+)$} then cancel_booking(req, res, $1)
@@ -246,8 +249,9 @@ class APIServlet < WEBrick::HTTPServlet::AbstractServlet
   end
 
   def admin_login(req, res)
+    return err(res, 503, 'Admin login not configured — set ADMIN_PASS') if ADMIN_PASSWORD.empty?
     b = body_json(req)
-    if b['password'] == ADMIN_PASSWORD
+    if !b['password'].to_s.empty? && b['password'] == ADMIN_PASSWORD
       token = SecureRandom.hex(32)
       $sessions[token] = Time.now + 28_800  # 8 hours
       ok(res, { token: token })
@@ -350,6 +354,12 @@ class APIServlet < WEBrick::HTTPServlet::AbstractServlet
     })
   end
 
+  def ical_token(req, res)
+    return err(res, 401, 'Unauthorized') unless valid_session?(req)
+    return err(res, 503, 'iCal not configured — set ICAL_TOKEN') if ICAL_TOKEN.empty?
+    ok(res, { token: ICAL_TOKEN })
+  end
+
   def revenue(req, res)
     return err(res, 401, 'Unauthorized') unless valid_session?(req)
     active = load_bookings.reject { |b| b['status'] == 'cancelled' }
@@ -405,7 +415,7 @@ class ICalServlet < WEBrick::HTTPServlet::AbstractServlet
   def do_GET(req, res)
     # ── Token check ──
     token = req.query['token'].to_s.strip
-    if token != ICAL_TOKEN
+    if ICAL_TOKEN.empty? || token != ICAL_TOKEN
       res.status = 401
       res['Content-Type'] = 'text/plain'
       res.body = 'Unauthorized'
